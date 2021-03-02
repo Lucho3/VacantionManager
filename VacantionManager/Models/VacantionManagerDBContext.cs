@@ -16,9 +16,6 @@ namespace VacantionManager.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<UserModel>()
-                .Property(b => b.role)
-                .HasDefaultValue(4);
 
             modelBuilder.Entity<UserModel>()
                .Property(b => b.id)
