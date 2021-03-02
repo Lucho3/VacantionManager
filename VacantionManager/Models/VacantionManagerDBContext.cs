@@ -7,9 +7,9 @@ using VacantionManager.Models.Entity;
 
 namespace VacantionManager.Models
 {
-    public class VacantionManagerDBContextcs:DbContext
+    public class VacantionManagerDBContext:DbContext
     {
-        public VacantionManagerDBContextcs(DbContextOptions<VacantionManagerDBContextcs> options)
+        public VacantionManagerDBContext(DbContextOptions<VacantionManagerDBContext> options)
            : base(options)
         {
         }
@@ -59,6 +59,43 @@ namespace VacantionManager.Models
             modelBuilder.Entity<HospitalLeaveModel>()
                             .Property(b => b.approved)
                             .HasDefaultValue(false);
+
+            //Conections
+            modelBuilder.Entity<UserModel>()
+           .HasOne<RoleModel>()
+           .WithMany()
+           .HasForeignKey(p => p.id)
+           .HasConstraintName("ForeignKey_User_Role");
+
+            modelBuilder.Entity<UserModel>()
+           .HasOne<TeamModel>()
+           .WithMany()
+           .HasForeignKey(p => p.id)
+           .HasConstraintName("ForeignKey_User_Team");
+
+            modelBuilder.Entity<LeaveModel>()
+           .HasOne<UserModel>()
+           .WithMany()
+           .HasForeignKey(p => p.id)
+           .HasConstraintName("ForeignKey_Leave_User");
+
+            modelBuilder.Entity<HospitalLeaveModel>()
+           .HasOne<UserModel>()
+           .WithMany()
+           .HasForeignKey(p => p.id)
+           .HasConstraintName("ForeignKey_LeaveHospital_User");
+
+            modelBuilder.Entity<TeamModel>()
+           .HasOne<UserModel>()
+           .WithMany()
+           .HasForeignKey(p => p.id)
+           .HasConstraintName("ForeignKey_Team_User");
+
+            modelBuilder.Entity<TeamModel>()
+           .HasOne<ProjectModel>()
+           .WithMany()
+           .HasForeignKey(p => p.id)
+           .HasConstraintName("ForeignKey_Team_Project");
 
         }
         public virtual DbSet<UserModel> Users { get; set; }
