@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace VacantionManager.Models.Entity
 {
-    public class TeamModel
+    public class ProjectModel
     {
-        public TeamModel()
+        public ProjectModel()
         {
-            this.devs = new HashSet<UserModel>();
+            this.workingTeams = new HashSet<TeamModel>();
         }
 
         [Key]
@@ -23,11 +23,11 @@ namespace VacantionManager.Models.Entity
         [Display(Name = "Enter name:")]
         public string name { get; set; }
 
+        [Column(TypeName = "text")]
         [Required]
-        public UserModel teamLeader { get; set; }
-          
-        public ProjectModel project { get; set; }
+        [Display(Name = "Enter description:")]
+        public string description { get; set; }
 
-        public virtual ICollection<UserModel> devs { get; set; }
+        public virtual ICollection<TeamModel> workingTeams { get; set; }
     }
 }

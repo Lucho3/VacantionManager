@@ -12,6 +12,8 @@ namespace VacantionManager.Models.Entity
         public UserModel()
         {
             this.leadedTeams = new HashSet<TeamModel>();
+            this.leaves = new HashSet<LeaveModel>();
+            this.hospitalLeaves = new HashSet<HospitalLeaveModel>();
         }
 
         [Key]
@@ -42,15 +44,16 @@ namespace VacantionManager.Models.Entity
         [Required]
         public string confirmPassword { get; set; }
 
-        [ForeignKey("RoleModel")]
         [Required]
         public RoleModel role { get; set; }
 
-        [ForeignKey("TeamModel")]
-        [Required]
         public TeamModel team { get; set; }
-
+        
         public virtual ICollection<TeamModel> leadedTeams { get; set; }
+
+        public virtual ICollection<LeaveModel> leaves { get; set; }
+
+        public virtual ICollection<HospitalLeaveModel> hospitalLeaves { get; set; }
 
 
     }
