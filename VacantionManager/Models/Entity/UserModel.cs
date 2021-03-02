@@ -9,6 +9,11 @@ namespace VacantionManager.Models.Entity
 {
     public class UserModel
     {
+        public UserModel()
+        {
+            this.leadedTeams = new HashSet<TeamModel>();
+        }
+
         [Key]
         [Column(TypeName = "int")]
         public int id { get; set; }
@@ -44,6 +49,8 @@ namespace VacantionManager.Models.Entity
         [ForeignKey("TeamModel")]
         [Required]
         public TeamModel team { get; set; }
+
+        public virtual ICollection<TeamModel> leadedTeams { get; set; }
 
 
     }
