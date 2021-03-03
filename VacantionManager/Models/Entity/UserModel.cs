@@ -17,6 +17,7 @@ namespace VacantionManager.Models.Entity
         }
 
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column(TypeName = "int")]
         public int id { get; set; }
 
@@ -41,14 +42,13 @@ namespace VacantionManager.Models.Entity
         public string password { get; set; }
 
         [NotMapped]
-        [Required]
         public string confirmPassword { get; set; }
 
         [Required]
         public RoleModel role { get; set; }
-
+            
         public TeamModel team { get; set; }
-        
+
         public virtual ICollection<TeamModel> leadedTeams { get; set; }
 
         public virtual ICollection<LeaveModel> leaves { get; set; }

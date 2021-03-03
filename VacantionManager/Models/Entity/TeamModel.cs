@@ -15,19 +15,19 @@ namespace VacantionManager.Models.Entity
         }
 
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column(TypeName = "int")]
         public int id { get; set; }
 
         [Column(TypeName = "nvarchar(200)")]
         [Required]
         [Display(Name = "Enter name:")]
-        public string name { get; set; }
-
-        [Required]
-        public UserModel teamLeader { get; set; }
-          
+        public string name { get; set; }          
         public ProjectModel project { get; set; }
 
+        public UserModel teamLeader { get; set; }
+
         public virtual ICollection<UserModel> devs { get; set; }
+
     }
 }

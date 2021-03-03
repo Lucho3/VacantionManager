@@ -15,6 +15,7 @@ namespace VacantionManager.Models.Entity
         }
 
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column(TypeName = "int")]
         public int id { get; set; }
 

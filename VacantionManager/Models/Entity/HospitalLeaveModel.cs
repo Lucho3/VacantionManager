@@ -10,6 +10,7 @@ namespace VacantionManager.Models.Entity
     public class HospitalLeaveModel
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column(TypeName = "int")]
         public int id { get; set; }
 
