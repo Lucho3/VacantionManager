@@ -42,6 +42,7 @@ namespace VacantionManager.Models.Entity
         public string password { get; set; }
 
         [NotMapped]
+        [Compare("password")]
         public string confirmPassword { get; set; }
 
         [Required]
