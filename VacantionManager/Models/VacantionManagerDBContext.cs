@@ -16,7 +16,14 @@ namespace VacantionManager.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-                  
+            modelBuilder.Entity<RoleModel>().HasData(
+                new RoleModel { id = 1, name = "Unassigned" },
+                new RoleModel { id = 2, name = "Developer" },
+                new RoleModel { id = 3, name = "Team Lead" },
+                new RoleModel { id = 4, name = "CEO" });
+
+            modelBuilder.Entity<UserModel>().HasIndex(u => u.username).IsUnique();
+
             modelBuilder.Entity<LeaveModel>()
                             .Property(b => b.appicationDate)
                             .HasDefaultValueSql("getdate()");
