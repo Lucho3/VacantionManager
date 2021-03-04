@@ -1,0 +1,75 @@
+﻿@model VacantionManager.Models.Entity.UserModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+
+<h1>Create account</h1>
+
+<script>
+    function showPass() {
+        var x = document.getElementById("passwordTb");
+        if (x.type === "password") {
+            x.type = "text";
+        } else {
+            x.type = "password";
+        }
+     }
+
+    function showComfPass() {
+        var x = document.getElementById("confirmPasswordTb");
+        if (x.type === "password") {
+            x.type = "text";
+        } else {
+            x.type = "password";
+        }
+    }
+</script >
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Regiser">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="username" class="control-label"></label>
+                <input asp-for="username" class="form-control" />
+                <span asp-validation-for="username" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="firstName" class="control-label"></label>
+                <input asp-for="firstName" class="form-control" />
+                <span asp-validation-for="firstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="lastName" class="control-label"></label>
+                <input typeasp-for="lastName" class="form-control" />
+                <span asp-validation-for="lastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="password" class="control-label"></label>
+                <input id="passwordTb"  minlength="8" asp-for="password" type="password" class="form-control" />
+                <span asp-validation-for="password" class="text-danger"></span>
+                <input type="checkbox" onclick="showPass()">Show Password
+            </div>
+            <div class="form-group">
+                <label asp-for="confirmPassword" class="control-label"></label>
+                <input id="confirmPasswordTb"  minlength="8" asp-for="confirmPassword" type="password" class="form-control" />
+                <span  asp-validation-for="confirmPassword" class="text-danger"></span>
+                <input type="checkbox" onclick="showComfPass()">Show Password
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Register" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
