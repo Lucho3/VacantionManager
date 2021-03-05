@@ -1,7 +1,7 @@
 ﻿@model VacantionManager.Models.Entity.UserModel
 
 @{
-    ViewData["Title"] = "register";
+    ViewData["Title"] = "Register";
 }
 
 
@@ -30,7 +30,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Register" method="post">
+        <form asp-action="Index" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="username" class="control-label"></label>
@@ -58,6 +58,9 @@
                 <input id="confirmPasswordTb"  minlength="8" asp-for="confirmPassword" type="password" class="form-control" />
                 <span  asp-validation-for="confirmPassword" class="text-danger"></span>
                 <div> <input type="checkbox" onclick="showComfPass()">Show Password</div>
+            </div>
+            <div>
+                <p class="text-danger">@ViewData["Error message"]</p>
             </div>
             <div class="form-group">
                 <input type="submit" value="Register" class="btn btn-primary" />
