@@ -65,7 +65,7 @@ namespace VacantionManager.Migrations
                     firstName = table.Column<string>(type: "nvarchar(200)", nullable: false),
                     lastName = table.Column<string>(type: "nvarchar(200)", nullable: false),
                     password = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    roleid = table.Column<int>(type: "int", nullable: false),
+                    roleid = table.Column<int>(type: "int", nullable: true),
                     teamid = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -76,7 +76,7 @@ namespace VacantionManager.Migrations
                         column: x => x.roleid,
                         principalTable: "Roles",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "ForeignKey_User_Team",
                         column: x => x.teamid,
@@ -134,6 +134,17 @@ namespace VacantionManager.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "Roles",
+                columns: new[] { "id", "name" },
+                values: new object[,]
+                {
+                    { 1, "Unassigned" },
+                    { 2, "Developer" },
+                    { 3, "Team Lead" },
+                    { 4, "CEO" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_HospitalLeaves_applicantid",
                 table: "HospitalLeaves",
@@ -163,6 +174,12 @@ namespace VacantionManager.Migrations
                 name: "IX_Users_teamid",
                 table: "Users",
                 column: "teamid");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_username",
+                table: "Users",
+                column: "username",
+                unique: true);
 
             migrationBuilder.AddForeignKey(
                 name: "ForeignKey_Team_Leader",

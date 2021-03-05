@@ -198,7 +198,7 @@ namespace VacantionManager.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("roleid")
+                    b.Property<int?>("roleid")
                         .HasColumnType("int");
 
                     b.Property<int?>("teamid")
@@ -262,9 +262,7 @@ namespace VacantionManager.Migrations
                 {
                     b.HasOne("VacantionManager.Models.Entity.RoleModel", "role")
                         .WithMany("users")
-                        .HasForeignKey("roleid")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("roleid");
 
                     b.HasOne("VacantionManager.Models.Entity.TeamModel", "team")
                         .WithMany("devs")

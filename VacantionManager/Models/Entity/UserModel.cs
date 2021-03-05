@@ -50,7 +50,6 @@ namespace VacantionManager.Models.Entity
         [RegularExpression(@"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}", ErrorMessage = "Password format doesn't match!\nIt must contains one uppercase and one lowercase letter, one symbol,\none number and it must be at least 8 symbols long!")]
         public string confirmPassword { get; set; }
 
-        [Required]
         public RoleModel role { get; set; }
             
         public TeamModel team { get; set; }

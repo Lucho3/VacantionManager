@@ -27,15 +27,21 @@ namespace VacantionManager.Controllers.Registration
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register([Bind("id,username,firstName,lastName,password")] UserModel userModel)
-        {
+        public async Task<IActionResult> Register([Bind("username,firstName,lastName,password,confirmPassword")] UserModel userModel)
+        {         
             if (ModelState.IsValid)
             {
-                _context.Add(userModel);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (!_context.Users.Select(u=>u.username).Contains(userModel.username))
+                {
+                    userModel.role = _context.Roles.Where(r => r.name == "Unassigned").FirstOrDefault();
+                    userModel.password = Utilities.HashFunctions.HashPassword(userModel.password);
+                    _context.Add(userModel);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+
             }
-            return View(userModel);
+            return RedirectToAction("Index", "Registration");
         }
     }
 }
