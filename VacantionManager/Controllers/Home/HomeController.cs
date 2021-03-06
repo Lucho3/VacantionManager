@@ -19,6 +19,8 @@ namespace VacantionManager.Controllers.Home
 
         private readonly VacantionManagerDBContext _context;
 
+        private UserModel user;
+
         private int userId=0;
 
         public HomeController(VacantionManagerDBContext context, ILogger<HomeController> logger)
@@ -33,7 +35,7 @@ namespace VacantionManager.Controllers.Home
             if (HttpContext.Session.TryGetValue("id", out buffer))
             {
                 userId = int.Parse(Encoding.UTF8.GetString(buffer));
-                UserModel user = await _context.Users.FirstOrDefaultAsync(u => u.id == userId);
+                user = await _context.Users.FirstOrDefaultAsync(u => u.id == userId);
                 ViewData["Full name"] = user.firstName + " " + user.lastName;
                 return View();
             }
