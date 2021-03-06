@@ -5,6 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using VacantionManager.Models.Entity;
 using VacantionManager.Models;
+using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace VacantionManager.Controllers.Registration
 {
@@ -12,8 +15,11 @@ namespace VacantionManager.Controllers.Registration
     {
         private readonly VacantionManagerDBContext _context;
 
-        public RegistrationController(VacantionManagerDBContext context)
-        {           
+        private readonly ILogger<RegistrationController> _logger;
+
+        public RegistrationController(VacantionManagerDBContext context, ILogger<RegistrationController> logger)
+        {
+            _logger = logger;
             _context = context;
         }
 
@@ -33,8 +39,8 @@ namespace VacantionManager.Controllers.Registration
             {
                 if (!_context.Users.Select(u => u.username).Contains(userModel.username))
                 {
-                    userModel.role = _context.Roles.Where(r => r.name == "Unassigned").FirstOrDefault();
-                    userModel.password = Utilities.HashFunctions.HashPassword(userModel.password);
+                    userModel.role = await _context.Roles.Where(r => r.name == "Unassigned").FirstOrDefaultAsync();
+                    userModel.password =Utilities.HashFunctions.HashPassword(userModel.password);
                     _context.Add(userModel);
                     await _context.SaveChangesAsync();
                     return View();
@@ -50,6 +56,12 @@ namespace VacantionManager.Controllers.Registration
                     ViewData["Error message"] = "One or more field has data that doesn't match the criteria for it!";
                     return View();
             }
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

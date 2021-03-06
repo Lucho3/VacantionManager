@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using VacantionManager.Models;
 using VacantionManager.Models.Entity;
@@ -12,13 +15,18 @@ namespace VacantionManager.Controllers.LogIn
     public class LogInController : Controller
     {
         private readonly VacantionManagerDBContext _context;
+
+        private readonly ILogger<LogInController> _logger;
+
+
         public IActionResult Index()
         {
             return View();
         }
        
-        public LogInController(VacantionManagerDBContext context)
+        public LogInController(VacantionManagerDBContext context, ILogger<LogInController> logger)
         {
+            _logger = logger;
             _context = context;
         }
 
@@ -37,8 +45,8 @@ namespace VacantionManager.Controllers.LogIn
                     string hashedPassword = Utilities.HashFunctions.HashPassword(password);
                     if (Utilities.HashFunctions.CompareHashedPasswords(user.password,hashedPassword))
                     {
-                        ViewData["Error message"] = "Logged";
-                        return View();
+                        HttpContext.Session.Set("id", Encoding.UTF8.GetBytes(user.id.ToString()));
+                        return RedirectToAction("Index", "Home");
                     }
                     else
                     {
@@ -57,6 +65,12 @@ namespace VacantionManager.Controllers.LogIn
                 ViewData["Error message"] = "One of the fields is empty!";
                 return View();
             }                       
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }

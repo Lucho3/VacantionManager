@@ -26,8 +26,11 @@ namespace VacantionManager
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-
-            services.AddDbContext<VacantionManagerDBContext>(options =>
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(60);
+            });
+                services.AddDbContext<VacantionManagerDBContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("VacantionManagerConnectionString")));
         }
 
@@ -51,11 +54,13 @@ namespace VacantionManager
 
             app.UseAuthorization();
 
+            app.UseSession();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=LogIn}/{action=Index}/{id?}");
             });
         }
     }
