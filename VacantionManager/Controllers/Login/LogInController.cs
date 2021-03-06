@@ -18,10 +18,17 @@ namespace VacantionManager.Controllers.LogIn
 
         private readonly ILogger<LogInController> _logger;
 
-
         public IActionResult Index()
         {
-            return View();
+            byte[] buffer = new byte[200];
+            if (!HttpContext.Session.TryGetValue("id", out buffer))
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
         }
        
         public LogInController(VacantionManagerDBContext context, ILogger<LogInController> logger)

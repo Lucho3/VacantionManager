@@ -1,9 +1,9 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_LayoutLogged.cshtml";
 }
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>@ViewData["Full name"]</p>
-    <a asp-action="LogOut", asp-controller="Home">Log Out</a>
 </div>

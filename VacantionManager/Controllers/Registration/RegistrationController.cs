@@ -24,8 +24,16 @@ namespace VacantionManager.Controllers.Registration
         }
 
         public IActionResult Index()
-        {           
-            return View();
+        {
+            byte[] buffer = new byte[200];
+            if (!HttpContext.Session.TryGetValue("id", out buffer))
+            {
+                return View();
+            }
+            else
+            {
+                return RedirectToAction("Index", "Home");
+            }
         }
 
         // POST: Register user
