@@ -172,6 +172,66 @@ namespace VacantionManager.Controllers.Profile
             }
         }
 
+        public async Task<IActionResult> ChangeRole()
+        {           
+            if (await extractIdAndUser())
+            {
+                if (user.role.name=="CEO")
+                {
+                    string role = Request.Form["Roles"];
+                    if (!String.IsNullOrEmpty(role))
+                    {
+                        user.role = await _context.Roles.FirstOrDefaultAsync(r => r.name == role);
+                        await _context.SaveChangesAsync();
+                        return await userView(user);
+                    }
+                    else
+                    {
+                        ViewData["Message"] = "You must select role!";
+                        return await userView(user);
+                    }
+                }
+                else
+                {
+                    return View("NoPermission");
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
+        }
+
+        public async Task<IActionResult> ChangeTeam()
+        {
+            if (await extractIdAndUser())
+            {
+                if (user.role.name == "CEO")
+                {
+                    string team = Request.Form["Teams"];
+                    if (!String.IsNullOrEmpty(team))
+                    {
+                        user.team = await _context.Teams.FirstOrDefaultAsync(t => t.name == team);
+                        await _context.SaveChangesAsync();
+                        return await userView(user);
+                    }
+                    else
+                    {
+                        ViewData["Message"] = "You must select team!";
+                        return await userView(user);
+                    }
+                }
+                else
+                {
+                    return View("NoPermission");
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
@@ -185,8 +245,8 @@ namespace VacantionManager.Controllers.Profile
             if (HttpContext.Session.TryGetValue("id", out buffer))
             {
                 userId = int.Parse(Encoding.UTF8.GetString(buffer));
-                user = await _context.Users.Include(u => u.role).Include(u => u.team)
-               .FirstOrDefaultAsync(m => m.id == userId);
+                 user = await _context.Users.Include(u => u.role).Include(u => u.team)
+                .FirstOrDefaultAsync(m => m.id == userId);
                 return true;
             }
             else

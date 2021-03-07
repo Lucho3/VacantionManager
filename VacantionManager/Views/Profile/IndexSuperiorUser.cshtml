@@ -93,7 +93,7 @@
                     <select style="display:block;" name="Roles">
                         @foreach (var item in Model.roles)
                         {
-                            <option name="role" value=@item>@item</option>
+                        <option value=@item>@item</option>
                         }
                     </select>
                     <input style="margin-top:5px;" type="submit" value="Save" class="btn btn-primary" />
@@ -114,11 +114,11 @@
                 Html.DisplayFor(model => model.user.team.name);
             }
 
-            <button id="expandButtonTeams" style="margin-left:30px;" onclick=expandObject("changeTeam"),closeObject("expandButtonTeams")>Change username</button>
+            <button id="expandButtonTeams" style="margin-left:30px;" onclick=expandObject("changeTeam"),closeObject("expandButtonTeams")>Change team</button>
             <div style="display:none; margin-top:10px;" id="changeTeam">
-                <form asp-action="ChangeRole">
+                <form asp-action="ChangeTeam">
                     @if (Model.teams.Count() > 0)
-                    {<select style="display:block;" name="Roles">
+                    {<select style="display:block;" name="Teams">
                         @foreach (var item in Model.teams)
                         {
                             <option name="team" value=@item>@item</option>
