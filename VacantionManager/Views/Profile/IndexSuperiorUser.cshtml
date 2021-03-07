@@ -1,0 +1,172 @@
+﻿<script>
+    function expandObject(input) {
+        var x = document.getElementById(input);
+        x.style.display = 'block';
+    }
+    function expandObjectInline(input) {
+        var x = document.getElementById(input);
+        x.style.display = 'inline';
+    }
+
+    function closeObject(input) {
+        var x = document.getElementById(input);
+        x.style.display = 'none';
+    }
+
+    function showPass(input) {
+        var x = document.getElementById(input);
+        if (x.type === "password") {
+            x.type = "text";
+        } else {
+            x.type = "password";
+        }
+    }
+
+</script>
+
+@model VacantionManager.Models.HelperModels.UserProfileModel
+
+@{
+    ViewData["Title"] = "SuperiorUserProfile";
+    Layout = "~/Views/Shared/_LayoutLogged.cshtml";
+}
+
+
+<div>
+    <h4>Profile Details</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Username:
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.user.username)
+            <button id="expandButtonUsername" style="margin-left:30px;" onclick=expandObject("changeUsername"),closeObject("expandButtonUsername")>Change username</button>
+            <div style="display:none; margin-top:10px;" id="changeUsername">
+                <form asp-action="ChangeUsername">
+                    <input name="username" class="form-control" />
+                    <input style="margin-top:5px;" type="submit" value="Save" class="btn btn-primary" />
+                </form>
+                <button  style="display:block; margin-top:5px;" onclick=closeObject("changeUsername"),expandObjectInline("expandButtonUsername")>Close</button>
+            </div>
+        </dd>
+
+
+        <dt class="col-sm-2">
+            First name:
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.user.firstName)
+            <button id="expandButtonFirstName" style="margin-left:30px;" onclick=expandObject("changeFirstName"),closeObject("expandButtonFirstName")>Change username</button>
+            <div style="display:none; margin-top:10px;" id="changeFirstName">
+                <form asp-action="ChangeFirstName">
+                    <input name="firstName" class="form-control" />
+                    <input style="margin-top:5px;" type="submit" value="Save" class="btn btn-primary" />
+                </form>
+                <button style="display:block; margin-top:5px;" onclick=closeObject("changeFirstName"),expandObjectInline("expandButtonFirstName")>Close</button>
+            </div>
+        </dd>
+
+        <dt class="col-sm-2">
+            Last name:
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.user.lastName)
+            <button id="expandButtonLastName" style="margin-left:30px;" onclick=expandObject("changeLastName"),closeObject("expandButtonLastName")>Change username</button>
+            <div style="display:none; margin-top:10px;" id="changeLastName">
+                <form asp-action="ChangeLastName">
+                    <input name="lastName" class="form-control" />
+                    <input style="margin-top:5px;" type="submit" value="Save" class="btn btn-primary" />
+                </form>
+                <button style="display:block; margin-top:5px;" onclick=closeObject("changeLastName"),expandObjectInline("expandButtonLastName")>Close</button>
+            </div>
+        </dd>
+
+        <dt class="col-sm-2">
+            Role:
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.user.role.name)
+            <button id="expandButtonRoles" style="margin-left:30px;" onclick=expandObject("changeRole"),closeObject("expandButtonRoles")>Change role</button>
+            <div style="display:none; margin-top:10px;" id="changeRole">
+                <form asp-action="ChangeRole">
+                    <select style="display:block;" name="Roles">
+                        @foreach (var item in Model.roles)
+                        {
+                            <option name="role" value=@item>@item</option>
+                        }
+                    </select>
+                    <input style="margin-top:5px;" type="submit" value="Save" class="btn btn-primary" />
+                </form>
+                <button style="display:block; margin-top:5px;" onclick=closeObject("changeRole"),expandObjectInline("expandButtonRoles")>Close</button>
+            </div>
+        </dd>
+        <dt class="col-sm-2">
+            Team:
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.user.team == null)
+            {
+                <p style="display:inline;">The user doesn't have team yet!</p>
+            }
+            else
+            {
+                Html.DisplayFor(model => model.user.team.name);
+            }
+
+            <button id="expandButtonTeams" style="margin-left:30px;" onclick=expandObject("changeTeam"),closeObject("expandButtonTeams")>Change username</button>
+            <div style="display:none; margin-top:10px;" id="changeTeam">
+                <form asp-action="ChangeRole">
+                    @if (Model.teams.Count() > 0)
+                    {<select style="display:block;" name="Roles">
+                        @foreach (var item in Model.teams)
+                        {
+                            <option name="team" value=@item>@item</option>
+                        }
+                    </select>
+                    }
+                    else
+                    { 
+                        <p style="margin-top:5px;">No teams to show!</p>
+                    }
+                    <input style="margin-top:5px;" type="submit" value="Save" class="btn btn-primary" />
+                </form>
+                <button style="display:block; margin-top:5px;" onclick=closeObject("changeTeam"),expandObjectInline("expandButtonTeams")>Close</button>
+            </div>
+        </dd>
+
+        <dt class="col-sm-2">
+            Password:
+        </dt>
+        <dd class="col-sm-10">
+            <button id="expandButtonPassword" style="margin-left:30px;" onclick=expandObject("changePassword"),closeObject("expandButtonPassword")>Change password</button>
+            <div style="display:none; margin-top:10px;" id="changePassword">
+                <form asp-action="ChangePassword">
+                    <label class="control-label">Enter old password:</label>
+                    <input id="oldPassTb" type="password" name="oldPassword" class="form-control" />
+                    <div> <input type="checkbox" onclick=showPass("oldPassTb")>Show Password</div>
+
+                    <label class="control-label">Enter new password:</label>
+                    <input id="newPassTb" type="password" name="newPassword" class="form-control" />
+                    <div> <input type="checkbox" onclick=showPass("newPassTb")>Show Password</div>
+
+                    <label class="control-label">Confirm password:</label>
+                    <input id="confirmNewPassTb" type="password" name="confirmPassword" class="form-control" />
+                    <div> <input type="checkbox" onclick=showPass("confirmNewPassTb")>Show Password</div>
+
+                    <input style="margin-top:5px;" type="submit" value="Save" class="btn btn-primary" />
+                </form>
+                <button style="display:block; margin-top:5px;" onclick=closeObject("changePassword"),expandObjectInline("expandButtonPassword")>Close</button>
+            </div>
+        </dd>
+
+
+        <div>
+            <p class="text-danger">@ViewData["Message"]</p>
+        </div>
+
+    </dl>
+</div>
+<div>
+    <a asp-action="Index" asp-controller="Home">Back to Home</a>
+</div>

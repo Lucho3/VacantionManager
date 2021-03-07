@@ -49,8 +49,8 @@ namespace VacantionManager.Controllers.LogIn
                 UserModel user = await _context.Users.FirstOrDefaultAsync(u => u.username == username);
                 if (user!=null)
                 {
-                    string hashedPassword = Utilities.HashFunctions.HashPassword(password);
-                    if (Utilities.HashFunctions.CompareHashedPasswords(user.password,hashedPassword))
+
+                    if (Utilities.HashFunctions.ComparePasswords(user.password,password))
                     {
                         HttpContext.Session.Set("id", Encoding.UTF8.GetBytes(user.id.ToString()));
                         return RedirectToAction("Index", "Home");

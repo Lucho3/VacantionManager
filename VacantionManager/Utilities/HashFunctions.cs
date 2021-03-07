@@ -35,7 +35,7 @@ namespace VacantionManager.Utilities
 
         }
 
-        public static bool CompareHashedPasswords(string DBpass, string InsertedPass)
+        public static bool ComparePasswords(string DBpass, string InsertedPass)
         {
             byte[] hashbytes = Convert.FromBase64String(DBpass);
             byte[] saltExtracted = new byte[16];
@@ -44,13 +44,13 @@ namespace VacantionManager.Utilities
             string insertedPassword = InsertedPass;
             var loginHasher = new Rfc2898DeriveBytes(insertedPassword, saltExtracted, 1000);
             byte[] hashExtracted = loginHasher.GetBytes(20);
-            bool flag = false;
+            bool flag = true;
 
             for (int i = 0; i < 20; i++)
             {
                 if (hashbytes[i] != hashExtracted[i])
                 {
-                    flag = true;
+                    flag = false;
                 }
             }
             return flag;

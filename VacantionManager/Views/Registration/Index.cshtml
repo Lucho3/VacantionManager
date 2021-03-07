@@ -5,8 +5,8 @@
 }
 
 <script>
-    function showPass() {
-        var x = document.getElementById("passwordTb");
+    function showPass(input) {
+        var x = document.getElementById(input);
         if (x.type === "password") {
             x.type = "text";
         } else {
@@ -14,14 +14,6 @@
         }
     }
 
-    function showComfPass() {
-        var x = document.getElementById("confirmPasswordTb");
-        if (x.type === "password") {
-            x.type = "text";
-        } else {
-            x.type = "password";
-        }
-    }
 </script>
 
 <h1>Create account</h1>
@@ -50,13 +42,13 @@
                 <label asp-for="password" class="control-label"></label>
                 <input id="passwordTb"  minlength="8" asp-for="password" type="password" class="form-control" />
                 <span asp-validation-for="password" class="text-danger"></span>
-                <div><input type="checkbox" onclick="showPass()">Show Password</div>
+                <div><input type="checkbox" onclick=showPass("passwordTb")>Show Password</div>
             </div>
             <div class="form-group">
                 <label asp-for="confirmPassword" class="control-label"></label>
                 <input id="confirmPasswordTb"  minlength="8" asp-for="confirmPassword" type="password" class="form-control" />
                 <span  asp-validation-for="confirmPassword" class="text-danger"></span>
-                <div> <input type="checkbox" onclick="showComfPass()">Show Password</div>
+                <div> <input type="checkbox"  onclick=showPass("confirmPasswordTb")>Show Password</div>
             </div>
             <div>
                 <p class="text-danger">@ViewData["Error message"]</p>

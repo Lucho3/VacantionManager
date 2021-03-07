@@ -5,8 +5,8 @@
 }
 
 <script>
-    function showPass() {
-        var x = document.getElementById("passwordTb");
+    function showPass(input) {
+        var x = document.getElementById(input);
         if (x.type === "password") {
             x.type = "text";
         } else {
@@ -31,7 +31,7 @@
                 <label asp-for="password" class="control-label"></label>
                 <input id="passwordTb"  minlength="8" name="password" type="password" class="form-control" />
                 <span asp-validation-for="password" class="text-danger"></span>
-                <div><input type="checkbox" onclick="showPass()">Show Password</div>
+                <div><input type="checkbox" onclick=showPass("passwordTb")>Show Password</div>
             </div>
             <div>
                 <p class="text-danger">@ViewData["Error message"]</p>
