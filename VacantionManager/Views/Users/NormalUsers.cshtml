@@ -1,0 +1,79 @@
+﻿@model IEnumerable<VacantionManager.Models.Entity.UserModel>
+@{
+    ViewData["Title"] = "NormalUser";
+    Layout = "~/Views/Shared/_LayoutLogged.cshtml";
+}
+
+<h1>Users</h1>
+
+<form style="margin-bottom:10px;" asp-action="Search" asp-controller="Users">
+    <p style="display:inline;">Search by:</p>
+    <select  name="SearchBy">
+        <option name="role" value=role>Role</option>
+        <option name="username" value=username>Username</option>
+        <option name="firstName" value=firstName>First name</option>
+        <option name="lastName" value=lastName>Last name</option>
+    </select>
+    <input style="display:inline; margin-left:10px;" name="search"  />
+    <input style="display:inline; margin-left:10px;" type="submit" value="Search"  />
+</form>
+<p class="text-danger" style="margin-bottom:10px;">@ViewData["Message"]</p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Usrname:
+                </th>
+                <th>
+                    First name:
+                </th>
+                <th>
+                    Last name:
+                </th>
+                <th>
+                   Role:
+                </th>
+                <th>
+                    Team:
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.username)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.firstName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.lastName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.role.name)
+                </td>
+                 @if (item.team==null)
+                 {
+                    <td>
+                        The user doesn't have team yet!
+                    </td>
+                 }
+                 else
+                 {
+                     <td>
+                     @Html.DisplayFor(modelIteml => item.team.name)
+                     </td>
+                 }
+
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.id">Details</a>
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+    
+

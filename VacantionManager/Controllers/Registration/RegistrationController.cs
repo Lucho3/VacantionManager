@@ -51,7 +51,7 @@ namespace VacantionManager.Controllers.Registration
                     userModel.password =Utilities.HashFunctions.HashPassword(userModel.password);
                     _context.Add(userModel);
                     await _context.SaveChangesAsync();
-                    return View();
+                    return View("Index","LogIn");
                 }
                 else
                 {

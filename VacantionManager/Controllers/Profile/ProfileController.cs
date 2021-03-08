@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VacantionManager.Models;
-using VacantionManager.Models.HelperModels;
+using VacantionManager.Models.ViewModels;
 using VacantionManager.Models.Entity;
 
 namespace VacantionManager.Controllers.Profile
@@ -26,27 +26,28 @@ namespace VacantionManager.Controllers.Profile
         {
             _logger = logger;
             _context = context;
+
         }
         public async Task<IActionResult> Index()
         {
-            if (await extractIdAndUser())
-            {
-                if (userId <= 0)
-                {
-                    return NotFound();
-                }
-
-                if (user == null)
-                {
-                    return NotFound();
-                }
-
-                return await userView(user);
-            }
-            else
-            {
-                return RedirectToAction("Index", "LogIn");
-            }
+          if (await extractIdAndUser())
+          {
+             if (userId <= 0)
+             {
+                 return NotFound();
+             }
+          
+             if (user == null)
+             {
+                 return NotFound();
+             }
+          
+             return await userView(user);
+           }
+           else
+           {
+               return RedirectToAction("Index", "LogIn");
+           }
         }
 
         public async Task<IActionResult> ChangeUsername(string username)
@@ -262,14 +263,13 @@ namespace VacantionManager.Controllers.Profile
             {
                 List<string> roles = await _context.Roles.Select(r => r.name).ToListAsync();
                 List<string> teams = await _context.Teams.Select(t => t.name).ToListAsync();
-                return View("IndexSuperiorUser",new UserProfileModel(model,roles,teams));
+                return View("IndexSuperiorUser",new UserProfileViewModel(model,roles,teams));
             }
             else
             {
                 return View("IndexNormalUser",model);
             }
         }
-
 
     }
 }

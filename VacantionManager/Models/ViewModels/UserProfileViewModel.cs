@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using VacantionManager.Models.Entity;
 
-namespace VacantionManager.Models.HelperModels
+namespace VacantionManager.Models.ViewModels
 {
-    public class UserProfileModel
+    public class UserProfileViewModel
     {
-        public UserProfileModel(object user,List<string> roles,List<string> teams)
+        public UserProfileViewModel(object user,List<string> roles,List<string> teams)
         {
             this.user = (UserModel)user;
             this.roles = roles;

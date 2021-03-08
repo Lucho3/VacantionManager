@@ -33,7 +33,7 @@
 
 
 <div>
-    <h4>Profile Details</h4>
+    <h4>Profile</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
@@ -126,13 +126,8 @@
                 <button style="display:block;" onclick=closeObject("changePassword"),expandObjectInline("expandButtonPassword")>Close</button>
             </div>
         </dd>
-        
-
-        <div>
-            <p class="text-danger">@ViewData["Message"]</p>
-        </div>
-
     </dl>
+    <p class="text-danger">@ViewData["Message"]</p>
 </div>
 <div>
     <a asp-action="Index" asp-controller="Home">Back to Home</a>
