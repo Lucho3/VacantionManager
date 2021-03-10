@@ -1,31 +1,116 @@
-﻿@model VacantionManager.Models.Entity.UserModel
+﻿@model VacantionManager.Models.ViewModels.UserProfileViewModel
 
 @{
     ViewData["Title"] = "Edit";
     Layout = "~/Views/Shared/_LayoutLogged.cshtml";
 }
 
+<script>
+    function showPass(input) {
+        var x = document.getElementById(input);
+        if (x.type === "password") {
+            x.type = "text";
+        } else {
+            x.type = "password";
+        }
+    }
+</script>
 <h1>Edit</h1>
 
-<h4>UserModel</h4>
+<h4>User</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="id" />
-            <div class="form-group">
-                <label asp-for="username" class="control-label"></label>
-                <input asp-for="username" class="form-control" />
-                <span asp-validation-for="username" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
+
+<dd class="col-sm-10">   
+    <div style="margin-top:10px;">        
+        <form asp-action="ChangeUsername" asp-route-id="@Model.user.id">
+            <label>Change username:</label>
+            <input asp-for="user.username" style="display:inline;width:30%;" name="username" class="form-control" />
+            <input style="display:inline;" type="submit" value="Save" class="btn btn-primary" />
         </form>
     </div>
-</div>
 
+
+    <div style="margin-top:10px;">
+        <form asp-action="ChangeFirstName" asp-route-id="@Model.user.id">
+            <label>Change first name:</label>
+            <input asp-for="user.firstName" style="display:inline;width:30%;" name="firstName" class="form-control" />
+            <input style="display:inline;" type="submit" value="Save" class="btn btn-primary" />
+        </form>
+    </div>
+
+
+    <div style="margin-top:10px;">
+        <form asp-action="ChangeLastName" asp-route-id="@Model.user.id">
+            <label>Change last name:</label>
+            <input asp-for="user.lastName" style="display:inline;width:30%;" name="lastName" class="form-control" />
+            <input style="display:inline;" type="submit" value="Save" class="btn btn-primary" />
+        </form>
+    </div>
+
+
+    <div style="margin-top:10px;">
+        <form asp-action="ChangeRole" asp-route-id="@Model.user.id">
+            <label>Change role:</label>
+            <select style="display:inline;width:30%;" name="Roles">
+                @foreach (var item in Model.roles)
+                {
+                    if (Model.user.role.name == item)
+                    {
+                        <option selected value=@item>@item</option>
+                    }
+                    else
+                    { 
+                        <option value=@item>@item</option>
+                    }
+
+                }
+            </select>
+            <input style="display:inline;" type="submit" value="Save" class="btn btn-primary" />
+        </form>
+    </div>
+
+
+    <div style="margin-top:10px;">
+        <form asp-action="ChangeTeam" asp-route-id="@Model.user.id">
+            <label>Change team:</label>
+            @if (Model.teams.Count() > 0)
+            {<select  style="display:inline;width:30%;" name="Teams">
+                    @foreach (var item in Model.teams)
+                    {
+                        @if (Model.user.team.name == item)
+                        {
+                            <option selected name="team" value=@item>@item</option>
+                        }
+                        else
+                        { 
+                             <option name="team" value=@item>@item</option>
+                        }
+
+                    }
+                </select>
+                <input style="display:inline;" type="submit" value="Save" class="btn btn-primary" />
+            }
+            else
+            {
+                <label>No teams to show!</label>
+            }
+
+        </form>
+    </div>
+
+
+    <div style="margin-top:10px;" >
+        <form asp-action="ChangePassword" asp-route-id="@Model.user.id">
+            <label>Change password:</label>
+            <input style="display:inline;width:30%;" id="newPassTb" type="password" name="newPassword" class="form-control" />
+            <input style="display:inline;" type="submit" value="Save" class="btn btn-primary" />
+            <div> <input type="checkbox" onclick=showPass("newPassTb")>Show Password</div>
+        </form>
+    </div>
+
+</dd>
+
+<p>@ViewData["Message"]</p>
 <div>
     <a asp-action="Index">Back to List</a>
 </div>

@@ -163,7 +163,7 @@ namespace VacantionManager.Controllers.Profile
                 }
                 else
                 {
-                    ViewData["Message"]= "First name is required!";
+                    ViewData["Message"]= "Last name is required!";
                     return await userView(user);
                 }
             }

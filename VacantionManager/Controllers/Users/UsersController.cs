@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using VacantionManager.Models;
 using VacantionManager.Models.Entity;
+using VacantionManager.Models.ViewModels;
 
 namespace VacantionManager.Controllers.Users
 
@@ -105,7 +106,7 @@ namespace VacantionManager.Controllers.Users
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("id,username,firstName,lastName,password")] UserModel userModel)
+        public async Task<IActionResult> Create([Bind("id,username,firstName,lastName,password,confirmPassword")] UserModel userModel)
         {
             if (await extractUser())
             {
@@ -113,6 +114,8 @@ namespace VacantionManager.Controllers.Users
                 {
                     if (ModelState.IsValid)
                     {
+                        userModel.role = await _context.Roles.Where(r => r.name == "Unassigned").FirstOrDefaultAsync();
+                        userModel.password = Utilities.HashFunctions.HashPassword(userModel.password);
                         _context.Add(userModel);
                         await _context.SaveChangesAsync();
                         return RedirectToAction(nameof(Index));
@@ -143,62 +146,16 @@ namespace VacantionManager.Controllers.Users
                         return NotFound();
                     }
 
-                    var userModel = await _context.Users.FindAsync(id);
+                    var userModel = await _context.Users.Include(u=>u.role).Include(u=>u.team).FirstOrDefaultAsync(u=>u.id==id);
+                    
                     if (userModel == null)
                     {
                         return NotFound();
                     }
-                    return View(userModel);
-                }
-                else
-                {
-                    return View("NoPermission");
-                }
-            }
-            else
-            {
-                return RedirectToAction("Index", "LogIn");
-            }
-
-        }
-
-        // POST: UserModels/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("id,username")] UserModel userModel)
-        {
-            if (await extractUser())
-            {
-                if (user.role.name == "CEO")
-                {
-                    if (id != userModel.id)
-                    {
-                        return NotFound();
-                    }
-
-                    if (ModelState.IsValid)
-                    {
-                        try
-                        {
-                            _context.Update(userModel);
-                            await _context.SaveChangesAsync();
-                        }
-                        catch (DbUpdateConcurrencyException)
-                        {
-                            if (!UserModelExists(userModel.id))
-                            {
-                                return NotFound();
-                            }
-                            else
-                            {
-                                throw;
-                            }
-                        }
-                        return RedirectToAction(nameof(Index));
-                    }
-                    return View(userModel);
+                    var roles = await _context.Roles.Select(r => r.name).ToListAsync();
+                    var teams = await _context.Teams.Select(r => r.name).ToListAsync();
+                    UserProfileViewModel user = new UserProfileViewModel(userModel, roles, teams);
+                    return View(user);
                 }
                 else
                 {
@@ -210,6 +167,8 @@ namespace VacantionManager.Controllers.Users
                 return RedirectToAction("Index", "LogIn");
             }
         }
+
+     
 
         // GET: UserModels/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -271,6 +230,206 @@ namespace VacantionManager.Controllers.Users
         private bool UserModelExists(int id)
         {
             return _context.Users.Any(e => e.id == id);
+        }
+        public async Task<IActionResult> ChangeUsername(string username,int? id)
+        {
+            if (await extractUser())
+            {
+                if (user.role.name == "CEO")
+                {
+                    UserModel u = await _context.Users.Include(u => u.role).Include(u => u.team).FirstOrDefaultAsync(u => u.id == id);
+                    if (!String.IsNullOrEmpty(username))
+                    {
+                        if (!_context.Users.Select(u => u.username).Contains(username))
+                        {                           
+                            u.username = username;
+                            await _context.SaveChangesAsync();
+                            return await userViewEdited(u);
+                        }
+                        else
+                        {
+                            ViewData["Message"] = "This username is taken or it is the same!";
+                            return await userViewEdited(u);
+                        }
+                    }
+                    else
+                    {
+                        ViewData["Message"] = "Username is required!";
+                        return await userViewEdited(u);
+                    }
+                }
+                else
+                {
+                    return View("NoPermission");
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
+        }
+
+        public async Task<IActionResult> ChangePassword(string newPassword, int? id)
+        {
+            if (await extractUser())
+            {
+                if (user.role.name == "CEO")
+                {
+                    UserModel u = await _context.Users.Include(u => u.role).Include(u => u.team).FirstOrDefaultAsync(u => u.id == id);
+                    if (!String.IsNullOrEmpty(newPassword))
+                    {
+                        if (Utilities.UserValidation.passwordCheck(newPassword))
+                        {
+                            
+                            u.password = Utilities.HashFunctions.HashPassword(newPassword);
+                            await _context.SaveChangesAsync();
+                            ViewData["Message"] = "Changed successfully!";
+                            return await userViewEdited(u);
+                        }
+                        else
+                        {
+                            ViewData["Message"] = "New password doesn't match the criteria!";
+                            return await userViewEdited(u);
+                        }
+                    }
+                    else
+                    {
+                        ViewData["Message"] = "One or more fields are empty!";
+                        return await userViewEdited(u);
+                    }
+                }
+                else
+                {
+                    return View("NoPermission");
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
+        }
+
+        public async Task<IActionResult> ChangeFirstName(string firstName,int? id)
+        {
+            if (await extractUser())
+            {
+                if (user.role.name == "CEO")
+                {
+                    UserModel u = await _context.Users.Include(u => u.role).Include(u => u.team).FirstOrDefaultAsync(u => u.id == id);
+                    if (!String.IsNullOrEmpty(firstName))
+                    {                       
+                        u.firstName = firstName;
+                        await _context.SaveChangesAsync();
+                        return await userViewEdited(u);
+                    }
+                    else
+                    {
+                        ViewData["Message"] = "First name is required!";
+                        return await userViewEdited(u);
+                    }
+                }
+                else
+                {
+                    return View("NoPermission");
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
+        }
+
+        public async Task<IActionResult> ChangeLastName(string lastName,int? id)
+        {
+            if (await extractUser())
+            {
+                if (user.role.name == "CEO")
+                {
+                    UserModel u = await _context.Users.Include(u => u.role).Include(u => u.team).FirstOrDefaultAsync(u => u.id == id);
+                    if (!String.IsNullOrEmpty(lastName))
+                    {
+                        
+                        u.lastName = lastName;
+                        await _context.SaveChangesAsync();
+                        return await userViewEdited(u);
+                    }
+                    else
+                    {
+                        ViewData["Message"] = "Last name is required!";
+                        return await userViewEdited(u);
+                    }
+                }
+                else
+                {
+                    return View("NoPermission");
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
+        }
+
+        public async Task<IActionResult> ChangeRole(int? id)
+        {
+            if (await extractUser())
+            {
+                if (user.role.name == "CEO")
+                {
+                    UserModel u = await _context.Users.Include(u => u.role).Include(u => u.team).FirstOrDefaultAsync(u => u.id == id);
+                    string role = Request.Form["Roles"];
+                    if (!String.IsNullOrEmpty(role))
+                    {                      
+                        u.role = await _context.Roles.FirstOrDefaultAsync(r => r.name == role);
+                        await _context.SaveChangesAsync();
+                        return await userViewEdited(u);
+                    }
+                    else
+                    {
+                        ViewData["Message"] = "You must select role!";
+                        return await userViewEdited(u);
+                    }
+                }
+                else
+                {
+                    return View("NoPermission");
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
+        }
+
+        public async Task<IActionResult> ChangeTeam(int? id)
+        {
+            if (await extractUser())
+            {
+                if (user.role.name == "CEO")
+                {
+                    UserModel u = await _context.Users.Include(u => u.role).Include(u => u.team).FirstOrDefaultAsync(u => u.id == id);
+                    string team = Request.Form["Teams"];
+                    if (!String.IsNullOrEmpty(team))
+                    {                       
+                        u.team = await _context.Teams.FirstOrDefaultAsync(t => t.name == team);
+                        await _context.SaveChangesAsync();
+                        return await userViewEdited(u);
+                    }
+                    else
+                    {
+                        ViewData["Message"] = "You must select team!";
+                        return await userViewEdited(u);
+                    }
+                }
+                else
+                {
+                    return View("NoPermission");
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
         }
 
         public async Task<IActionResult> Search(string search)
@@ -372,6 +531,21 @@ namespace VacantionManager.Controllers.Users
             else
             {
                 return View("IndexNormalUser", model);
+            }
+        }
+
+        [NonAction]
+        private async Task<ViewResult> userViewEdited(object model)
+        {
+            if (user.role.name == "CEO")
+            {
+                List<string> roles = await _context.Roles.Select(r => r.name).ToListAsync();
+                List<string> teams = await _context.Teams.Select(t => t.name).ToListAsync();
+                return View("Edit", new UserProfileViewModel(model, roles, teams));
+            }
+            else
+            {
+                return View("NoPermission");
             }
         }
     }
