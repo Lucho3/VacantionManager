@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VacantionManager.Models;
 using VacantionManager.Models.Entity;
+using VacantionManager.Models.ViewModels;
 
 namespace VacantionManager.Controllers.Users
 {
@@ -179,11 +180,12 @@ namespace VacantionManager.Controllers.Users
                 return RedirectToAction("Index", "LogIn");
             }
         }
+
         public async Task<IActionResult> Details(int? id)
         {
             if (await extractIdAndUser())
             {
-                 if (id == null)
+                if (id == null)
                  {
                      return NotFound();
                  }
@@ -195,6 +197,12 @@ namespace VacantionManager.Controllers.Users
                      return NotFound();
                  }
 
+                if (userRole=="CEO")
+                {
+                    List<string> roles = await _context.Roles.Select(r => r.name).ToListAsync();
+                    List<string> teams = await _context.Teams.Select(t => t.name).ToListAsync();
+                    return View("~/Views/Profile/IndexSuperiorUser.cshtml", new UserProfileViewModel(userModel,roles,teams));
+                }
                  return View("~/Views/Users/UserDetails.cshtml",userModel);
             }
 
@@ -214,6 +222,7 @@ namespace VacantionManager.Controllers.Users
         [NonAction]
         private async Task<bool> extractIdAndUser()
         {
+            
             byte[] buffer = new byte[200];
             if (HttpContext.Session.TryGetValue("id", out buffer))
             {

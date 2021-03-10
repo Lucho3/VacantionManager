@@ -24,7 +24,7 @@ namespace VacantionManager.Controllers.Home
         private int userId=0;
 
         public HomeController(VacantionManagerDBContext context, ILogger<HomeController> logger)
-        {
+        {           
             _logger = logger;
             _context = context;
         }

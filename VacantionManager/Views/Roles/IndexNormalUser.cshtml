@@ -1,0 +1,38 @@
+﻿@model IEnumerable<VacantionManager.Models.Entity.RoleModel>
+
+@{
+    ViewData["Title"] = "RolesNormalUser";
+    Layout = "~/Views/Shared/_LayoutLogged.cshtml";
+}
+
+<h1>Roles</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.name)
+            </th>
+            <th>
+                Number of users with this role:
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.name)
+                </td>
+                <td>
+                    @item.users.Count()
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.id">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
