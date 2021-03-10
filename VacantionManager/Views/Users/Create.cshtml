@@ -1,35 +1,17 @@
 ﻿@model VacantionManager.Models.Entity.UserModel
 
 @{
-    ViewData["Title"] = "CEOCreateUser";
+    ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_LayoutLogged.cshtml";
 }
 
-<script>
-    function showPass(input) {
-        var x = document.getElementById(input);
-        if (x.type === "password") {
-            x.type = "text";
-        } else {
-            x.type = "password";
-        }
-    }
+<h1>Create</h1>
 
-    function getValue(input) {
-        var x1 = document.getElementById(input.shift());
-        var x2 = document.getElementById(input.shift());
-
-        x2.value = x1.value;
-    }
-
-</script>
-
-<h1>Create new user</h1>
-
+<h4>UserModel</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create" asp-controller="Users" method="post">
+        <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="username" class="control-label"></label>
@@ -48,18 +30,13 @@
             </div>
             <div class="form-group">
                 <label asp-for="password" class="control-label"></label>
-                <input id="PasswordTb" type="password" asp-for="password" class="form-control" />
-                <input id="confirmPasswordTb" type="hidden" asp-for="confirmPassword"  class="form-control" />
+                <input asp-for="password" class="form-control" />
                 <span asp-validation-for="password" class="text-danger"></span>
-                <div> <input type="checkbox" onclick=showPass("PasswordTb")>Show Password</div>
             </div>
             <div class="form-group">
-                <input  onclick=getValue(["PasswordTb","confirmPasswordTb"]) type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
-        <div>
-            <p class="text-danger">@ViewData["Error message"]</p>
-        </div>
     </div>
 </div>
 
