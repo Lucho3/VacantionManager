@@ -1,7 +1,7 @@
 ﻿@model VacantionManager.Models.Entity.UserModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "DetailsNormalUser";
     Layout = "~/Views/Shared/_LayoutLogged.cshtml";
 }
 
@@ -50,8 +50,6 @@
         </dd>
     </dl>
 </div>
-<div>   
-
-    <a asp-action="Edit" asp-route-id="@Model.id">Edit</a> 
+<div>
     <a asp-action="Index">Back to List</a>
 </div>
