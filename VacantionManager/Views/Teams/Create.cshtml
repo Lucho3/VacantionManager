@@ -7,52 +7,54 @@
 
 <h1>Create new team:</h1>
 
-<h4>TeamModel</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="team.name" class="control-label"></label>
-                <input asp-for="team.name" name="teamName"class="form-control" />
-                <span asp-validation-for="team.name" class="text-danger"></span>
+                <label class="control-label">Enter team name:</label>
+                <input style="display:inline;" name="teamName" />
 
-                <label class="control-label">Chose project:</label>
-                @if (Model.projects.Count() > 0)
-                {
-                    <select style="display:block;" name="Projects">
-                        @foreach (var item in Model.projects)
-                        {
-                            <option value=@item>@item</option>
-                        }
-                    </select>
-                }
-                else
-                {
-                    <label>There are no projects to be shown!</label>
-                }
-
-                <label class="control-label">Choose team leader:</label>
-                @if (Model.users.Count() > 0)
-                {
-                    <select style="display:block;" name="Projects">
-                        @foreach (var item in Model.users)
-                        {
-                            <option value=@item.Key>@(item.Key+"("+item.Value+")")</option>
-                        }
-                    </select>
-                }
-                else
-                { 
-                    <label>There are no team leaders to be shown!</label>
-                }
-
+                <div>
+                    <label class="control-label">Chose project:</label>
+                    @if (Model.projects.Count() > 0)
+                    {
+                        <select style="display:inline;" name="Projects">
+                            @foreach (var item in Model.projects)
+                            {
+                                <option value=@item>@item</option>
+                            }
+                        </select>
+                    }
+                    else
+                    {
+                        <label style="display:inline;">There are no projects to be shown!</label>
+                    }
                 </div>
+
+                <div>
+                    <label class="control-label">Choose team leader:</label>
+                    @if (Model.users.Count() > 0)
+                    {
+                        <select style="display:inline;" name="TeamLeads">
+                            @foreach (var item in Model.users)
+                            {
+                                <option value=@item.Key>@(item.Key+"("+item.Value+")")</option>
+                            }
+                        </select>
+                    }
+                    else
+                    {
+                        <label style="display:inline;">There are no team leaders to be shown!</label>
+                    }
+                </div>
+            </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
+        <p class="text-danger" style="margin-bottom:10px;">@ViewData["Message"]</p>
     </div>
 </div>
 

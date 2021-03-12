@@ -74,19 +74,27 @@
         <form asp-action="ChangeTeam" asp-route-id="@Model.user.id">
             <label>Change team:</label>
             @if (Model.teams.Count() > 0)
-            {<select  style="display:inline;width:30%;" name="Teams">
-                    @foreach (var item in Model.teams)
-                    {
-                        @if (Model.user.team.name == item)
-                        {
-                            <option selected name="team" value=@item>@item</option>
-                        }
-                        else
-                        { 
+            {<select style="display:inline;width:30%;" name="Teams">
+                 @foreach (var item in Model.teams)
+                 {
+                     if (Model.user.team != null)
+                     {
+                         @if (Model.user.team.name == item)
+                         {
+                             <option selected name="team" value=@item>@item</option>
+                         }
+                         else
+                         {
                              <option name="team" value=@item>@item</option>
-                        }
 
-                    }
+                         }
+                     }
+                     else
+                     { 
+                            <option name="team" value=@item>@item</option>
+                     }
+
+                 }
                 </select>
                 <input style="display:inline;" type="submit" value="Save" class="btn btn-primary" />
             }

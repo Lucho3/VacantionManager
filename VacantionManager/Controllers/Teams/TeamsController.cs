@@ -74,9 +74,10 @@ namespace VacantionManager.Controllers.Teams
             {
                 if (user.role.name == "CEO")
                 {
+                    //TODO: different method
                     Dictionary<string, string> users = await _context.Users.Include(u => u.role).Where(u => u.role.name == "Team Lead").ToDictionaryAsync(u => u.username, u => (u.firstName + " " + u.lastName));
                     List<string> projects = await _context.Projects.Select(p => p.name).ToListAsync();
-                    TeamViewModel twm = new TeamViewModel(new TeamModel(),users,projects);
+                    TeamViewModel twm = new TeamViewModel(users,projects);
                     return View(twm);
                 }
                 else
@@ -95,15 +96,52 @@ namespace VacantionManager.Controllers.Teams
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("id,name")] TeamModel teamModel)
+        public async Task<IActionResult> Create(string teamName)
         {
-            if (ModelState.IsValid)
+            if (await extractUser())
             {
-                _context.Add(teamModel);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (user.role.name == "CEO")
+                {
+                    //TODO: different method
+                    Dictionary<string, string> users = await _context.Users.Include(u => u.role).Where(u => u.role.name == "Team Lead").ToDictionaryAsync(u => u.username, u => (u.firstName + " " + u.lastName));
+                    List<string> projects = await _context.Projects.Select(p => p.name).ToListAsync();
+                    TeamViewModel twm = new TeamViewModel(users, projects);
+                    if (teamName != null)
+                    {
+                        string project = Request.Form["Projects"];
+                        string teamLead = Request.Form["TeamLeads"];
+                        TeamModel temMod = new TeamModel
+                        {
+                            name = teamName
+                        };
+                        if (teamLead != null)
+                        {
+                            temMod.teamLeader = await _context.Users.Where(u => u.username == teamLead).FirstOrDefaultAsync();
+                        }
+                        if (project != null)
+                        {
+                            temMod.project = await _context.Projects.Where(p => p.name == project).FirstOrDefaultAsync();
+
+                        }
+                        _context.Add(temMod);
+                        await _context.SaveChangesAsync();
+                        return RedirectToAction(nameof(Index));
+                    }
+                    else
+                    {
+                        ViewData["Message"] = "You must chose name of the team!";                        
+                        return View(twm);
+                    }
+                }
+                else
+                {
+                    return View("NoPermission");
+                }
             }
-            return View(teamModel);
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
         }
 
         // GET: TeamModels/Edit/5
