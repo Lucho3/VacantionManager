@@ -44,8 +44,7 @@ namespace VacantionManager.Controllers.Roles
             else
             {
                 return RedirectToAction("Index", "LogIn");
-            }
-            
+            }           
         }
 
         // GET: RoleModels/Details/5
