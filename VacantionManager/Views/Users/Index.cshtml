@@ -23,6 +23,8 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+@if (Model.Count() > 0)
+{
 <table class="table">
     <thead>
         <tr>
@@ -67,3 +69,8 @@
         }
     </tbody>
 </table>
+}
+else
+{ 
+    <p>No such users!</p>
+}

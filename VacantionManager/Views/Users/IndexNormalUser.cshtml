@@ -20,45 +20,52 @@
 </form>
 <p class="text-danger" style="margin-bottom:10px;">@ViewData["Message"]</p>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Usrname:
-            </th>
-            <th>
-                First name:
-            </th>
-            <th>
-                Last name:
-            </th>
-            <th>
-                Role:
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+@if (Model.Count() > 0)
+{
+    <table class="table">
+        <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.username)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.firstName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.lastName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.role.name)
-                </td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.id">Details</a> 
-                </td>
+                <th>
+                    Usrname:
+                </th>
+                <th>
+                    First name:
+                </th>
+                <th>
+                    Last name:
+                </th>
+                <th>
+                    Role:
+                </th>
+                <th></th>
             </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.username)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.firstName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.lastName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.role.name)
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.id">Details</a>
+                    </td>
+                </tr>
 
-        }
-    </tbody>
-</table>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No such users!</p>
+}

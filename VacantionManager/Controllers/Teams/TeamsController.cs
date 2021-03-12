@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using VacantionManager.Models;
 using VacantionManager.Models.Entity;
+using VacantionManager.Models.ViewModels;
 
 namespace VacantionManager.Controllers.Teams
 {
@@ -67,9 +68,26 @@ namespace VacantionManager.Controllers.Teams
         }
 
         // GET: TeamModels/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            if (await extractUser())
+            {
+                if (user.role.name == "CEO")
+                {
+                    Dictionary<string, string> users = await _context.Users.Include(u => u.role).Where(u => u.role.name == "Team Lead").ToDictionaryAsync(u => u.username, u => (u.firstName + " " + u.lastName));
+                    List<string> projects = await _context.Projects.Select(p => p.name).ToListAsync();
+                    TeamViewModel twm = new TeamViewModel(new TeamModel(),users,projects);
+                    return View(twm);
+                }
+                else
+                {
+                    return View("NoPermission");
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
         }
 
         // POST: TeamModels/Create
@@ -190,17 +208,16 @@ namespace VacantionManager.Controllers.Teams
                     string searchBy = Request.Form["SearchBy"];
                     if (searchBy == "projectName")
                     {
-                        //TODO: When null exception
-                        teams = teams.Where(t => t.project.name.Contains(searchBy)).ToList();
+                        teams = teams.Where(t =>t.project!=null && t.project.name.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
 
-                        ViewData["Message"] = "Searched by role!";
+                        ViewData["Message"] = "Searched by project name!";
                         return viewByTypeUser(teams);
                     }
                     else 
                     {
-                        teams = teams.Where(t => t.name.Contains(searchBy)).ToList();
+                         teams = teams.Where(t => t.name.Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
 
-                        ViewData["Message"] = "Searched by username!";
+                        ViewData["Message"] = "Searched by team name!";
                         return viewByTypeUser(teams);
                     }              
                 }

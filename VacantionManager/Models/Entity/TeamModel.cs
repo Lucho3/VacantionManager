@@ -22,7 +22,8 @@ namespace VacantionManager.Models.Entity
         [Column(TypeName = "nvarchar(200)")]
         [Required]
         [Display(Name = "Enter name:")]
-        public string name { get; set; }          
+        public string name { get; set; }
+
         public ProjectModel project { get; set; }
 
         public UserModel teamLeader { get; set; }

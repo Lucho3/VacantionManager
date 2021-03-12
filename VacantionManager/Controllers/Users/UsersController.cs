@@ -434,7 +434,7 @@ namespace VacantionManager.Controllers.Users
 
         public async Task<IActionResult> Search(string search)
         {
-            List<UserModel> users = await _context.Users.Include(u => u.role).ToListAsync();
+            List<UserModel> users = await _context.Users.Include(u => u.role).Include(u => u.team).ToListAsync();
             if (await extractUser())
             {
                 if (search != null)
@@ -442,44 +442,32 @@ namespace VacantionManager.Controllers.Users
                     string searchBy = Request.Form["SearchBy"];
                     if (searchBy == "role")
                     {
-                        users = await _context.Users
-                                              .Include(u => u.role)
-                                              .Include(u => u.team)
-                                              .Where(u => u.role.name
-                                              .Contains(search)).ToListAsync();
+                        users = users.Where(u => u.role.name
+                                      .Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
 
                         ViewData["Message"] = "Searched by role!";
                         return viewByTypeUser(users);
                     }
                     else if (searchBy == "username")
                     {
-                        users = await _context.Users
-                                              .Include(u => u.role)
-                                              .Include(u => u.team)
-                                              .Where(u => u.username
-                                              .Contains(search)).ToListAsync();
+                        users = users.Where(u => u.username
+                                      .Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
 
                         ViewData["Message"] = "Searched by username!";
                         return viewByTypeUser(users);
                     }
                     else if (searchBy == "firstName")
                     {
-                        users = await _context.Users
-                                              .Include(u => u.role)
-                                              .Include(u => u.team)
-                                              .Where(u => u.firstName
-                                              .Contains(search)).ToListAsync();
+                        users = users.Where(u => u.firstName
+                                      .Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
 
                         ViewData["Message"] = "Searched by first name!";
                         return viewByTypeUser(users);
                     }
                     else
                     {
-                        users = await _context.Users
-                                              .Include(u => u.role)
-                                              .Include(u => u.team)
-                                              .Where(u => u.lastName
-                                              .Contains(search)).ToListAsync();
+                        users = users.Where(u => u.lastName
+                                      .Contains(search, StringComparison.OrdinalIgnoreCase)).ToList();
 
                         ViewData["Message"] = "Searched by last name!";
                         return viewByTypeUser(users);

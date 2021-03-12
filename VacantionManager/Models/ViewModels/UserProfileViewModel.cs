@@ -8,7 +8,7 @@ namespace VacantionManager.Models.ViewModels
 {
     public class UserProfileViewModel
     {
-        public UserProfileViewModel(object user,List<string> roles,List<string> teams)
+        public UserProfileViewModel(object user,IEnumerable<string> roles,IEnumerable<string> teams)
         {
             this.user = (UserModel)user;
             this.roles = roles;
