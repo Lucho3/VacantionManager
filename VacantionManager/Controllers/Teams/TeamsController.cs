@@ -75,9 +75,9 @@ namespace VacantionManager.Controllers.Teams
                 if (user.role.name == "CEO")
                 {
                     //TODO: different method
-                    Dictionary<string, string> users = await _context.Users.Include(u => u.role).Where(u => u.role.name == "Team Lead").ToDictionaryAsync(u => u.username, u => (u.firstName + " " + u.lastName));
+                    Dictionary<string, string> users = await _context.Users.Include(u => u.role).Where(u => u.role.name == "Team Lead" && u.team == null).ToDictionaryAsync(u => u.username, u => (u.firstName + " " + u.lastName));
                     List<string> projects = await _context.Projects.Select(p => p.name).ToListAsync();
-                    TeamViewModel twm = new TeamViewModel(users,projects);
+                    TeamViewModel twm = new TeamViewModel(users, projects);
                     return View(twm);
                 }
                 else
@@ -103,33 +103,38 @@ namespace VacantionManager.Controllers.Teams
                 if (user.role.name == "CEO")
                 {
                     //TODO: different method
-                    Dictionary<string, string> users = await _context.Users.Include(u => u.role).Where(u => u.role.name == "Team Lead").ToDictionaryAsync(u => u.username, u => (u.firstName + " " + u.lastName));
+                    Dictionary<string, string> users = await _context.Users.Include(u => u.role).Where(u => u.role.name == "Team Lead" && u.team == null).ToDictionaryAsync(u => u.username, u => (u.firstName + " " + u.lastName));
                     List<string> projects = await _context.Projects.Select(p => p.name).ToListAsync();
                     TeamViewModel twm = new TeamViewModel(users, projects);
                     if (teamName != null)
                     {
                         string project = Request.Form["Projects"];
                         string teamLead = Request.Form["TeamLeads"];
+                        UserModel leader = await _context.Users.Where(u => u.username == teamLead).FirstOrDefaultAsync();
                         TeamModel temMod = new TeamModel
                         {
-                            name = teamName
+                            name = teamName,
                         };
-                        if (teamLead != null)
-                        {
-                            temMod.teamLeader = await _context.Users.Where(u => u.username == teamLead).FirstOrDefaultAsync();
-                        }
+                        
                         if (project != null)
                         {
                             temMod.project = await _context.Projects.Where(p => p.name == project).FirstOrDefaultAsync();
 
                         }
+                        if (teamLead != null)
+                        {
+                            temMod.teamLeader = await _context.Users.Where(u => u.username == teamLead).FirstOrDefaultAsync();
+                            leader.team = temMod;
+                            leader.leadedTeam = temMod;
+                        }
+                       
                         _context.Add(temMod);
                         await _context.SaveChangesAsync();
                         return RedirectToAction(nameof(Index));
                     }
                     else
                     {
-                        ViewData["Message"] = "You must chose name of the team!";                        
+                        ViewData["Message"] = "You must chose name of the team!";
                         return View(twm);
                     }
                 }

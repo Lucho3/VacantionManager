@@ -24,6 +24,8 @@ namespace VacantionManager.Models
 
             modelBuilder.Entity<UserModel>().HasIndex(u => u.username).IsUnique();
 
+            modelBuilder.Entity<TeamModel>().HasIndex(u => u.name).IsUnique();
+
             modelBuilder.Entity<LeaveModel>()
                             .Property(b => b.appicationDate)
                             .HasDefaultValueSql("getdate()");
@@ -45,11 +47,12 @@ namespace VacantionManager.Models
             .WithMany(q => q.devs)
             .HasConstraintName("ForeignKey_User_Team");
 
-            modelBuilder.Entity<TeamModel>()
-           .HasOne(p => p.teamLeader)
-           .WithMany(q => q.leadedTeams)
-           .HasConstraintName("ForeignKey_Team_Leader");
+            modelBuilder.Entity<TeamModel>().HasIndex(u => u.teamLeaderId).IsUnique();
 
+            modelBuilder.Entity<UserModel>()
+                .HasOne(u => u.leadedTeam).WithOne(t => t.teamLeader).HasForeignKey<TeamModel>(t => t.teamLeaderId);
+
+            modelBuilder.Entity<TeamModel>().Property(t => t.teamLeaderId).IsRequired(false);
         }
         public virtual DbSet<UserModel> Users { get; set; }
 
@@ -61,6 +64,7 @@ namespace VacantionManager.Models
 
         public virtual DbSet<LeaveModel> Leaves { get; set; }
 
-        public virtual DbSet<HospitalLeaveModel> HOspitalLeaves { get; set; }
+        public virtual DbSet<HospitalLeaveModel> HospitalLeaves { get; set; }
+
     }
 }

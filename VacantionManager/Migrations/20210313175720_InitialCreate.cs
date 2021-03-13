@@ -42,7 +42,7 @@ namespace VacantionManager.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     name = table.Column<string>(type: "nvarchar(200)", nullable: false),
                     projectid = table.Column<int>(type: "int", nullable: true),
-                    teamLeaderid = table.Column<int>(type: "int", nullable: true)
+                    teamLeaderId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -156,14 +156,22 @@ namespace VacantionManager.Migrations
                 column: "applicantid");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Teams_name",
+                table: "Teams",
+                column: "name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Teams_projectid",
                 table: "Teams",
                 column: "projectid");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Teams_teamLeaderid",
+                name: "IX_Teams_teamLeaderId",
                 table: "Teams",
-                column: "teamLeaderid");
+                column: "teamLeaderId",
+                unique: true,
+                filter: "[teamLeaderId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_roleid",
@@ -182,9 +190,9 @@ namespace VacantionManager.Migrations
                 unique: true);
 
             migrationBuilder.AddForeignKey(
-                name: "ForeignKey_Team_Leader",
+                name: "FK_Teams_Users_teamLeaderId",
                 table: "Teams",
-                column: "teamLeaderid",
+                column: "teamLeaderId",
                 principalTable: "Users",
                 principalColumn: "id",
                 onDelete: ReferentialAction.Restrict);
@@ -193,7 +201,7 @@ namespace VacantionManager.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "ForeignKey_Team_Leader",
+                name: "FK_Teams_Users_teamLeaderId",
                 table: "Teams");
 
             migrationBuilder.DropTable(

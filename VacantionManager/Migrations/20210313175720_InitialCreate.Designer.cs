@@ -10,7 +10,7 @@ using VacantionManager.Models;
 namespace VacantionManager.Migrations
 {
     [DbContext(typeof(VacantionManagerDBContext))]
-    [Migration("20210305134442_InitialCreate")]
+    [Migration("20210313175720_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -55,7 +55,7 @@ namespace VacantionManager.Migrations
 
                     b.HasIndex("applicantid");
 
-                    b.ToTable("HOspitalLeaves");
+                    b.ToTable("HospitalLeaves");
                 });
 
             modelBuilder.Entity("VacantionManager.Models.Entity.LeaveModel", b =>
@@ -169,14 +169,19 @@ namespace VacantionManager.Migrations
                     b.Property<int?>("projectid")
                         .HasColumnType("int");
 
-                    b.Property<int?>("teamLeaderid")
+                    b.Property<int?>("teamLeaderId")
                         .HasColumnType("int");
 
                     b.HasKey("id");
 
+                    b.HasIndex("name")
+                        .IsUnique();
+
                     b.HasIndex("projectid");
 
-                    b.HasIndex("teamLeaderid");
+                    b.HasIndex("teamLeaderId")
+                        .IsUnique()
+                        .HasFilter("[teamLeaderId] IS NOT NULL");
 
                     b.ToTable("Teams");
                 });
@@ -251,9 +256,8 @@ namespace VacantionManager.Migrations
                         .HasForeignKey("projectid");
 
                     b.HasOne("VacantionManager.Models.Entity.UserModel", "teamLeader")
-                        .WithMany("leadedTeams")
-                        .HasForeignKey("teamLeaderid")
-                        .HasConstraintName("ForeignKey_Team_Leader");
+                        .WithOne("leadedTeam")
+                        .HasForeignKey("VacantionManager.Models.Entity.TeamModel", "teamLeaderId");
 
                     b.Navigation("project");
 
@@ -295,7 +299,7 @@ namespace VacantionManager.Migrations
                 {
                     b.Navigation("hospitalLeaves");
 
-                    b.Navigation("leadedTeams");
+                    b.Navigation("leadedTeam");
 
                     b.Navigation("leaves");
                 });

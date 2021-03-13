@@ -11,7 +11,6 @@ namespace VacantionManager.Models.Entity
     {
         public UserModel()
         {
-            this.leadedTeams = new HashSet<TeamModel>();
             this.leaves = new HashSet<LeaveModel>();
             this.hospitalLeaves = new HashSet<HospitalLeaveModel>();
         }
@@ -29,11 +28,13 @@ namespace VacantionManager.Models.Entity
         [Column(TypeName = "nvarchar(200)")]
         [Required(ErrorMessage = "First name is required! field")]
         [Display(Name = "Enter first name:")]
+        [RegularExpression(@"^[A-Z]+[a-zA-Z]*$",ErrorMessage = "The first letter is required to be uppercase. White space, numbers, and special characters are not allowed.")]
         public string firstName { get; set; }
 
         [Column(TypeName = "nvarchar(200)")]
         [Required(ErrorMessage = "Last name is required field!")]
         [Display(Name = "Enter last name:")]
+        [RegularExpression(@"^[A-Z]+[a-zA-Z]*$", ErrorMessage = "The first letter is required to be uppercase. White space, numbers, and special characters are not allowed.")]
         public string lastName { get; set; }
 
         [Required(ErrorMessage = "Password is required field!")]
@@ -54,8 +55,7 @@ namespace VacantionManager.Models.Entity
             
         public TeamModel team { get; set; }
 
-        public virtual ICollection<TeamModel> leadedTeams { get; set; }
-
+        public TeamModel leadedTeam { get; set; }
         public virtual ICollection<LeaveModel> leaves { get; set; }
 
         public virtual ICollection<HospitalLeaveModel> hospitalLeaves { get; set; }

@@ -26,6 +26,7 @@ namespace VacantionManager.Models.Entity
 
         public ProjectModel project { get; set; }
 
+        public int? teamLeaderId { get; set; }
         public UserModel teamLeader { get; set; }
 
         public virtual ICollection<UserModel> devs { get; set; }

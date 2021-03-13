@@ -45,13 +45,14 @@ namespace VacantionManager.Controllers.Registration
         {         
             if (ModelState.IsValid)
             {
+                //TODO async
                 if (!_context.Users.Select(u => u.username).Contains(userModel.username))
                 {
                     userModel.role = await _context.Roles.Where(r => r.name == "Unassigned").FirstOrDefaultAsync();
                     userModel.password =Utilities.HashFunctions.HashPassword(userModel.password);
                     _context.Add(userModel);
                     await _context.SaveChangesAsync();
-                    return View("Index","LogIn");
+                    return RedirectToAction("Index", "LogIn");
                 }
                 else
                 {
