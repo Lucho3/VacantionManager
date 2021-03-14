@@ -251,53 +251,179 @@ namespace VacantionManager.Controllers.Teams
         // GET: TeamModels/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (await extractUser())
             {
-                return NotFound();
-            }
-
-            var teamModel = await _context.Teams.FindAsync(id);
-            if (teamModel == null)
-            {
-                return NotFound();
-            }
-            return View(teamModel);
-        }
-
-        // POST: TeamModels/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("id,name")] TeamModel teamModel)
-        {
-            if (id != teamModel.id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
+                if (user.role.name == "CEO")
                 {
-                    _context.Update(teamModel);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TeamModelExists(teamModel.id))
+                    if (id == null)
                     {
                         return NotFound();
                     }
+
+                    TeamModel teamModel = await _context.Teams.Include(t => t.teamLeader).Include(t => t.project).FirstOrDefaultAsync(t => t.id == id);
+                    if (teamModel == null)
+                    {
+                        return NotFound();
+                    }
+
+                    Dictionary<string, string> users = await _context.Users.Include(u => u.role).Where(u => u.role.name == "Team Lead" && u.team == null).ToDictionaryAsync(u => u.username, u => (u.username+"("+u.firstName + " " + u.lastName+")"));
+                    List<string> projects = await _context.Projects.Select(p => p.name).ToListAsync();
+                    TeamEditViewModel tevm = new TeamEditViewModel(teamModel, users, projects);
+                    return View(tevm);
+                }
+                else
+                {
+                    return View("NoPermission");
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
+        }
+
+        //TODO refactor these 3 methods
+
+        public async Task<IActionResult> ChangeTeamName(int? teamId,string teamName)
+        {
+            if (await extractUser())
+            {
+                if (user.role.name == "CEO")
+                {
+                    if (teamId== null)
+                    {
+                        return NotFound();
+                    }
+
+                    TeamModel team = await _context.Teams.Include(t => t.teamLeader).Include(t => t.project).FirstOrDefaultAsync(t => t.id == teamId);
+                    Dictionary<string, string> users = await _context.Users.Include(u => u.role).Where(u => u.role.name == "Team Lead" && u.team == null).ToDictionaryAsync(u => u.username, u => (u.username + "(" + u.firstName + " " + u.lastName + ")"));
+                    List<string> projects = await _context.Projects.Select(p => p.name).ToListAsync();
+                    
+                    TeamEditViewModel tevm = new TeamEditViewModel(team, users, projects);
+
+                    if (teamName != null)
+                    {
+                        team.name = teamName;
+                        await _context.SaveChangesAsync();
+
+                        return View("Edit", tevm);
+                    }
                     else
                     {
-                        throw;
+                        ViewData["Message"] = "You must choose name for the team!";
+                        return View("Edit", tevm);
                     }
+                                                      
                 }
-                return RedirectToAction(nameof(Index));
+                else
+                {
+                    return View("NoPermission");
+                }
             }
-            return View(teamModel);
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
         }
+
+        public async Task<IActionResult> ChangeLeader(int? teamId)
+        {
+            if (await extractUser())
+            {
+                if (user.role.name == "CEO")
+                {
+                    if (teamId == null)
+                    {
+                        return NotFound();
+                    }
+
+                    string leader = Request.Form["Leaders"];
+
+                    TeamModel team = await _context.Teams.Include(t => t.teamLeader).Include(t => t.project).FirstOrDefaultAsync(t => t.id == teamId);
+                    Dictionary<string, string> users = await _context.Users.Include(u => u.role).Where(u => u.role.name == "Team Lead" && u.team == null).ToDictionaryAsync(u => u.username, u => (u.username + "(" + u.firstName + " " + u.lastName + ")"));
+                    List<string> projects = await _context.Projects.Select(p => p.name).ToListAsync();
+                    if (team.teamLeader!=null)
+                    {
+                        UserModel oldLeader = team.teamLeader;
+                        oldLeader.team = null;
+                        oldLeader.leadedTeam = null;
+                    }
+                    
+
+                    UserModel newLeader = await _context.Users.Include(u => u.team).Include(u => u.leadedTeam).FirstOrDefaultAsync(u => u.username == leader);
+                    if (newLeader != null)
+                    {
+                        newLeader.team = team;
+                        newLeader.leadedTeam = team;
+                        TeamEditViewModel tevm = new TeamEditViewModel(team, users, projects);
+                        await _context.SaveChangesAsync();
+                        return View("Edit", tevm);
+                    }
+                    else
+                    {
+                        TeamEditViewModel tevm = new TeamEditViewModel(team, users, projects);
+                        await _context.SaveChangesAsync();
+                        return View("Edit", tevm);
+                    }
+
+                }
+                else
+                {
+                    return View("NoPermission");
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
+        }
+
+        public async Task<IActionResult> ChangeProject(int? teamId)
+        {
+            if (await extractUser())
+            {
+                if (user.role.name == "CEO")
+                {
+                    if (teamId == null)
+                    {
+                        return NotFound();
+                    }
+
+                    string projectName = Request.Form["Projects"];
+
+                    TeamModel team = await _context.Teams.Include(t => t.teamLeader).Include(t => t.project).FirstOrDefaultAsync(t => t.id == teamId);
+                    Dictionary<string, string> users = await _context.Users.Include(u => u.role).Where(u => u.role.name == "Team Lead" && u.team == null).ToDictionaryAsync(u => u.username, u => (u.username + "(" + u.firstName + " " + u.lastName + ")"));
+                    List<string> projects = await _context.Projects.Select(p => p.name).ToListAsync();
+
+                    ProjectModel newProject = await _context.Projects.FirstOrDefaultAsync(p => p.name == projectName);
+                    if (newProject != null)
+                    {
+                        team.project = newProject;
+                        TeamEditViewModel tevm = new TeamEditViewModel(team, users, projects);
+                        await _context.SaveChangesAsync();
+                        return View("Edit", tevm);
+                    }
+                    else
+                    {
+                        team.project = null;
+                        TeamEditViewModel tevm = new TeamEditViewModel(team, users, projects);
+                        await _context.SaveChangesAsync();
+                        return View("Edit", tevm);
+                    }
+
+                }
+                else
+                {
+                    return View("NoPermission");
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
+        }
+
+
 
         // GET: TeamModels/Delete/5
         public async Task<IActionResult> Delete(int? id)
