@@ -33,7 +33,7 @@ namespace VacantionManager.Controllers.Teams
         {
             if (await extractUser())
             {
-                List<TeamModel> teams = await _context.Teams.Include(t => t.teamLeader).Include(t => t.devs).ToListAsync();
+                List<TeamModel> teams = await _context.Teams.Include(t => t.teamLeader).Include(t => t.devs.Where(u=>u.role.name!= "Unassigned")).ToListAsync();
                 if (user.role.name == "CEO")
                 {
                     return View(teams);

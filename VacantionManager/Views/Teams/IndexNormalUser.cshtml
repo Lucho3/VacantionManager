@@ -38,29 +38,29 @@
         <tbody>
             @foreach (var item in Model)
             {
-                <tr>
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.name)
+                </td>
+                @if (item.teamLeader != null)
+                {
                     <td>
-                        @Html.DisplayFor(modelItem => item.name)
+                        @(item.teamLeader.firstName+" " + item.teamLeader.lastName)
                     </td>
-                    @if (item.teamLeader != null)
-                    {
-                        <td>
-                            @(item.teamLeader.firstName+" " + item.teamLeader.lastName)
-                        </td>
-                    }
-                    else
-                    {
-                        <td>
-                            No team leader!
-                        </td>
-                    }
+                }
+                else
+                {
                     <td>
-                        @item.devs.Count()
+                        No team leader!
                     </td>
-                    <td>
-                        <a asp-action="Details" asp-route-id="@item.id">Details</a> 
-                    </td>
-                </tr>
+                }
+                <td>
+                    @item.devs.Count()
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.id">Details</a>
+                </td>
+            </tr>
             }
         </tbody>
     </table>

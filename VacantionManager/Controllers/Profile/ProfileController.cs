@@ -173,18 +173,49 @@ namespace VacantionManager.Controllers.Profile
             }
         }
 
+        //TODO: REFACTOR!!!!!
         public async Task<IActionResult> ChangeRole()
-        {           
+        {
             if (await extractIdAndUser())
             {
-                if (user.role.name=="CEO")
+                if (user.role.name == "CEO")
                 {
                     string role = Request.Form["Roles"];
                     if (!String.IsNullOrEmpty(role))
                     {
-                        user.role = await _context.Roles.FirstOrDefaultAsync(r => r.name == role);
-                        await _context.SaveChangesAsync();
-                        return await userView(user);
+                        if (role == "Team Lead")
+                        {
+                            if (user.team != null)
+                            {
+                                TeamModel team = await _context.Teams.Where(t => t.name == user.team.name).Include(t => t.teamLeader).FirstOrDefaultAsync();
+                                if (team.teamLeader != null)
+                                {
+                                    ViewData["Message"] = "Your team already has team leader!";
+                                    return await userView(user);
+                                }
+                                else
+                                {
+                                    team.teamLeader = user;
+                                    user.leadedTeam = team;
+                                    user.role = await _context.Roles.FirstOrDefaultAsync(r => r.name == role);
+                                    await _context.SaveChangesAsync();
+                                    return await userView(user);
+                                }
+                            }
+                            else
+                            {
+                                user.role = await _context.Roles.FirstOrDefaultAsync(r => r.name == role);
+                                await _context.SaveChangesAsync();
+                                return await userView(user);
+                            }
+                        }
+                        else
+                        {
+                            user.role = await _context.Roles.FirstOrDefaultAsync(r => r.name == role);
+                            await _context.SaveChangesAsync();
+                            return await userView(user);
+                        }
+                        
                     }
                     else
                     {
@@ -245,8 +276,8 @@ namespace VacantionManager.Controllers.Profile
             byte[] buffer = new byte[200];
             if (HttpContext.Session.TryGetValue("id", out buffer))
             {
-                userId = int.Parse(Encoding.UTF8.GetString(buffer));
-                 user = await _context.Users.Include(u => u.role).Include(u => u.team)
+                 userId = int.Parse(Encoding.UTF8.GetString(buffer));
+                 user = await _context.Users.Include(u => u.role).Include(u => u.team).Include(u=>u.leadedTeam)
                 .FirstOrDefaultAsync(m => m.id == userId);
                 return true;
             }

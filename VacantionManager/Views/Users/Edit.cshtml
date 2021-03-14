@@ -59,7 +59,7 @@
                         <option selected value=@item>@item</option>
                     }
                     else
-                    { 
+                    {
                         <option value=@item>@item</option>
                     }
 
@@ -75,6 +75,7 @@
             <label>Change team:</label>
             @if (Model.teams.Count() > 0)
             {<select style="display:inline;width:30%;" name="Teams">
+                            <option value=@null>---------------</option>
                  @foreach (var item in Model.teams)
                  {
                      if (Model.user.team != null)

@@ -376,13 +376,44 @@ namespace VacantionManager.Controllers.Users
             {
                 if (user.role.name == "CEO")
                 {
-                    UserModel u = await _context.Users.Include(u => u.role).Include(u => u.team).FirstOrDefaultAsync(u => u.id == id);
+                    UserModel u = await _context.Users.Include(u => u.role).Include(u => u.team).Include(u=>u.leadedTeam).FirstOrDefaultAsync(u => u.id == id);
                     string role = Request.Form["Roles"];
                     if (!String.IsNullOrEmpty(role))
-                    {                      
-                        u.role = await _context.Roles.FirstOrDefaultAsync(r => r.name == role);
-                        await _context.SaveChangesAsync();
-                        return await userViewEdited(u);
+                    {
+                        if (u.role.name == "Team Lead" && u.leadedTeam != null && u.team != null)
+                        {
+                            TeamModel t = await _context.Teams.Where(t => t.teamLeader == u).FirstOrDefaultAsync();
+                            t.devs.Remove(u);
+                            t.teamLeader = null;
+                            u.role = await _context.Roles.FirstOrDefaultAsync(r => r.name == role);
+                            u.leadedTeam = null;
+                            u.team = null;
+                            await _context.SaveChangesAsync();
+                            return await userViewEdited(u);
+                        }
+                        else if (role == "Team Lead" && u.team != null)
+                        {                                                     
+                             TeamModel userTeam = await _context.Teams.Where(t => t.devs.Contains(u)).Include(t=>t.teamLeader).FirstOrDefaultAsync();
+                             if (userTeam.teamLeader != null)
+                             {
+                                 ViewData["Message"] = "This team has leader!";
+                                 return await userViewEdited(u);
+                             }
+                             else
+                             {
+                                 u.role = await _context.Roles.FirstOrDefaultAsync(r => r.name == role);
+                                 u.leadedTeam = u.team;
+                                 u.team.teamLeader = u;
+                                 await _context.SaveChangesAsync();
+                                 return await userViewEdited(u);
+                             }                          
+                        }
+                        else
+                        {
+                            u.role = await _context.Roles.FirstOrDefaultAsync(r => r.name == role);
+                            await _context.SaveChangesAsync();
+                            return await userViewEdited(u);
+                        }
                     }
                     else
                     {
@@ -410,14 +441,35 @@ namespace VacantionManager.Controllers.Users
                     UserModel u = await _context.Users.Include(u => u.role).Include(u => u.team).FirstOrDefaultAsync(u => u.id == id);
                     string team = Request.Form["Teams"];
                     if (!String.IsNullOrEmpty(team))
-                    {                       
-                        u.team = await _context.Teams.FirstOrDefaultAsync(t => t.name == team);
-                        await _context.SaveChangesAsync();
-                        return await userViewEdited(u);
+                    {
+                        TeamModel teamModel = await _context.Teams.Where(t => t.name == team).Include(t=>t.teamLeader).FirstOrDefaultAsync();
+                        if (u.role.name == "Team Lead")
+                        {
+                            if (teamModel.teamLeader != null)
+                            {
+                                ViewData["Message"] = "This team has leader!";
+                                return await userViewEdited(u);
+                            }
+                            else
+                            {
+                                teamModel.teamLeader = u;
+                                u.leadedTeam = teamModel;
+                                u.team = teamModel;
+                                await _context.SaveChangesAsync();
+                                return await userViewEdited(u);
+                            }
+                        }
+                        else
+                        {
+                            u.team = teamModel;
+                            await _context.SaveChangesAsync();
+                            return await userViewEdited(u);
+                        }           
                     }
                     else
                     {
-                        ViewData["Message"] = "You must select team!";
+                        u.team = null;
+                        await _context.SaveChangesAsync();
                         return await userViewEdited(u);
                     }
                 }

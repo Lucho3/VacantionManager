@@ -111,7 +111,7 @@
             }
             else
             {
-                Html.DisplayFor(model => model.user.team.name);
+                @Model.user.team.name
             }
 
             <button id="expandButtonTeams" style="margin-left:30px;" onclick=expandObject("changeTeam"),closeObject("expandButtonTeams")>Change team</button>
