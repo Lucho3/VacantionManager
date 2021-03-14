@@ -119,6 +119,7 @@
                 <form asp-action="ChangeTeam">
                     @if (Model.teams.Count() > 0)
                     {<select style="display:block;" name="Teams">
+                        <option name="team" value=null>---------------</option>
                         @foreach (var item in Model.teams)
                         {
                             <option name="team" value=@item>@item</option>

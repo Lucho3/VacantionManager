@@ -1,0 +1,105 @@
+﻿@model VacantionManager.Models.Entity.TeamModel
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_LayoutLogged.cshtml";
+}
+
+
+<h1>Details</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Team name:
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.name)
+        </dd>
+
+        <dt class="col-sm-2">
+            Team leader:
+        </dt>
+
+        @if (Model.teamLeader == null)
+        {
+            <dd class="col-sm-10">
+                No team leader!
+            </dd>
+        }
+        else
+        {
+            <dd class="col-sm-10">
+                @(Model.teamLeader.firstName + " " + Model.teamLeader.lastName)
+            </dd>
+        }
+
+
+        <dt class="col-sm-2">
+            Project:
+        </dt>
+        @if (Model.project == null)
+        {
+            <dd class="col-sm-10">
+                No project currently working on!
+            </dd>
+        }
+        else
+        {
+            <dd class="col-sm-10">
+                @Model.project.name
+            </dd>
+
+        }
+    </dl>
+
+ 
+      @if (Model.devs.Count() > 0)
+      { <p>Users in this team without the leader</p>
+          <table class="table">
+              <thead>
+                  <tr>
+                      <th>
+                          Usrname:
+                      </th>
+                      <th>
+                          First name:
+                      </th>
+                      <th>
+                          Last name:
+                      </th>
+                      <th></th>
+                  </tr>
+              </thead>
+              <tbody>
+                  @foreach (var item in Model.devs)
+                  {
+                      <tr>
+                          <td>
+                              @item.username
+                          </td>
+                          <td>
+                              @item.firstName
+                          </td>
+                          <td>
+                              @item.lastName
+                          </td>
+                          <td>
+                              <a asp-action="Details"  asp-route-id="@item.id" asp-controller="Users">Details</a>
+                          </td>
+                      </tr>
+
+                  }
+              </tbody>
+          </table>
+      }
+      else
+      {
+          <p>No users in this team!</p>
+      }
+    </div>
+
+ 
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

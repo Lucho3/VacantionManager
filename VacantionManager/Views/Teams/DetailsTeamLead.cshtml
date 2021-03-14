@@ -107,7 +107,6 @@ function openUsers(evt, tabName) {
 
         }
     </dl>
-
     <p>@ViewData["Message"]</p>
     <div class="tab">
         <button class="tablinks" onclick="openUsers(event, 'UsersInTeam')">Users in team without the leader</button>
@@ -146,8 +145,8 @@ function openUsers(evt, tabName) {
                                 @item.lastName
                             </td>
                             <td>
-                                <a asp-action="Details"  asp-route-id="@item.id" asp-controller="Users">Details</a> |
-                                <a asp-action="RemoveFromTeam" asp-route-teamId="@Model.team.id" asp-controller="Teams" asp-route-userId="@item.id">Remove from team</a>
+                                <a asp-action="Details" asp-route-id="@item.id" asp-controller="Users">Details</a> |
+                                <a asp-action="RemoveFromTeam" asp-controller="Teams" asp-route-teamId="@Model.team.id" asp-route-userId="@item.id">Remove from team</a>
                             </td>
                         </tr>
 
@@ -199,7 +198,7 @@ function openUsers(evt, tabName) {
                             @item.role.name
                         </td>
                         <td>
-                            <a asp-action="Details" a asp-route-id="@item.id" asp-controller="Users">Details</a> |
+                            <a asp-action="Details" asp-route-id="@item.id" asp-controller="Users">Details</a> |
                             <a asp-action="AddInTeam" asp-route-teamId="@Model.team.id" asp-route-userId="@item.id">Add user in team</a>
                         </td>
                     </tr>
@@ -215,6 +214,5 @@ function openUsers(evt, tabName) {
     </div>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.team.id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

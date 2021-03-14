@@ -241,17 +241,10 @@ namespace VacantionManager.Controllers.Profile
                 if (user.role.name == "CEO")
                 {
                     string team = Request.Form["Teams"];
-                    if (!String.IsNullOrEmpty(team))
-                    {
-                        user.team = await _context.Teams.FirstOrDefaultAsync(t => t.name == team);
-                        await _context.SaveChangesAsync();
-                        return await userView(user);
-                    }
-                    else
-                    {
-                        ViewData["Message"] = "You must select team!";
-                        return await userView(user);
-                    }
+                    user.team = await _context.Teams.FirstOrDefaultAsync(t => t.name == team);
+                    await _context.SaveChangesAsync();
+                    return await userView(user);
+                    
                 }
                 else
                 {

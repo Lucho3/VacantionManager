@@ -52,19 +52,118 @@ namespace VacantionManager.Controllers.Teams
         // GET: TeamModels/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            if (await extractUser())
             {
-                return NotFound();
+                if (id == null)
+                {
+                    return NotFound();
+                }
+
+                var teamModel = await _context.Teams.Include(t => t.devs).Include(t => t.project).Include(t => t.teamLeader)
+                    .FirstOrDefaultAsync(m => m.id == id);
+
+                if (teamModel == null)
+                {
+                    return NotFound();
+                }
+
+                if (teamModel.teamLeader != null)
+                {
+                    teamModel.devs.Remove(teamModel.teamLeader);
+                }
+                List<UserModel> users = await _context.Users.Include(u => u.team).Where(u => u.team == null).Include(u=>u.role).ToListAsync();
+
+                TeamDetailsViewModel tdvm = new TeamDetailsViewModel(teamModel, users);
+               
+
+                if (user.role.name == "CEO")
+                {
+                    return View(tdvm);
+                }
+                else if (user.role.name == "Team Lead" && user.leadedTeam==teamModel)
+                {
+                    return View("DetailsTeamLead", tdvm);
+                }
+                else
+                {
+                    return View("DetailsNormalUser", teamModel);
+                }
+                
             }
 
-            var teamModel = await _context.Teams
-                .FirstOrDefaultAsync(m => m.id == id);
-            if (teamModel == null)
+            else
             {
-                return NotFound();
+                return RedirectToAction("Index", "LogIn");
             }
+        }
 
-            return View(teamModel);
+        public async Task<IActionResult> RemoveFromTeam(int? userId, int? teamId)
+        {
+            if (await extractUser())
+            {
+                if (userId == null || teamId==null)
+                {
+                    return NotFound();
+                }
+
+                UserModel u = await _context.Users.Where(u => u.id == userId).Include(u => u.team).FirstOrDefaultAsync();
+                var teamModel = await _context.Teams.Include(t => t.devs).Include(t => t.project).Include(t => t.teamLeader)
+                    .FirstOrDefaultAsync(m => m.id == teamId);
+
+                if (teamModel == null)
+                {
+                    return NotFound();
+                }
+                
+                teamModel.devs.Remove(u);
+                u.team = null;
+                await _context.SaveChangesAsync();
+
+                //TODO: Refaactor
+                return await ReturnTeamDetailsView(teamModel);
+            }
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
+        }
+
+        public async Task<IActionResult> AddInTeam(int? userId, int? teamId)
+        {
+            if (await extractUser())
+            {
+                if (userId == null || teamId==null)
+                {
+                    return NotFound();
+                }
+
+                UserModel u = await _context.Users.Where(u => u.id == userId).Include(u => u.team).Include(u=>u.role).FirstOrDefaultAsync();
+                var teamModel = await _context.Teams.Include(t => t.devs).Include(t => t.project).Include(t => t.teamLeader)
+                    .FirstOrDefaultAsync(m => m.id == teamId);
+
+                if (teamModel == null)
+                {
+                    return NotFound();
+                }
+
+                if (teamModel.teamLeader != null && u.role.name == "Team Lead")
+                {
+                    ViewData["Message"] = "This user can't be add. The team already has team leader!";
+                    return await ReturnTeamDetailsView(teamModel);
+                }
+                else
+                {
+                    teamModel.devs.Add(u);
+                    u.team = teamModel;
+                    await _context.SaveChangesAsync();
+                    return await ReturnTeamDetailsView(teamModel);
+                }
+                
+            }
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
         }
 
         // GET: TeamModels/Create
@@ -296,12 +395,33 @@ namespace VacantionManager.Controllers.Teams
             if (HttpContext.Session.TryGetValue("id", out buffer))
             {
                 int userId = int.Parse(Encoding.UTF8.GetString(buffer));
-                user = await _context.Users.Where(u => u.id == userId).Include(u => u.role).FirstOrDefaultAsync();
+                user = await _context.Users.Where(u => u.id == userId).Include(u => u.role).Include(u=>u.leadedTeam).Include(u=>u.team).FirstOrDefaultAsync();
                 return true;
             }
             else
             {
                 return false;
+            }
+        }
+
+        [NonAction]
+        private async Task<ViewResult> ReturnTeamDetailsView(TeamModel teamModel)
+        {
+            if (user.role.name == "CEO")
+            {
+                List<UserModel> users = await _context.Users.Include(u => u.team).Include(u=>u.role).Where(u => u.team == null).ToListAsync();
+                TeamDetailsViewModel tdvm = new TeamDetailsViewModel(teamModel, users);
+                return View("Details", tdvm);
+            }
+            else if (user.role.name == "Team Lead" && user.leadedTeam == teamModel)
+            {
+                List<UserModel> users = await _context.Users.Include(u => u.team).Include(u => u.role).Where(u => u.team == null).ToListAsync();
+                TeamDetailsViewModel tdvm = new TeamDetailsViewModel(teamModel, users);
+                return View("DetailsTeamLead", tdvm);
+            }
+            else
+            {
+                return View("DetailsNormalUser", teamModel);
             }
         }
     }
