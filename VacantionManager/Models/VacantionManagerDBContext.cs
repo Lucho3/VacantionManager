@@ -26,6 +26,8 @@ namespace VacantionManager.Models
 
             modelBuilder.Entity<TeamModel>().HasIndex(u => u.name).IsUnique();
 
+            modelBuilder.Entity<ProjectModel>().HasIndex(u => u.name).IsUnique();
+
             modelBuilder.Entity<LeaveModel>()
                             .Property(b => b.appicationDate)
                             .HasDefaultValueSql("getdate()");

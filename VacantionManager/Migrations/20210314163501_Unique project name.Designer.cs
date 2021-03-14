@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VacantionManager.Models;
 
 namespace VacantionManager.Migrations
 {
     [DbContext(typeof(VacantionManagerDBContext))]
-    partial class VacantionManagerDBContextModelSnapshot : ModelSnapshot
+    [Migration("20210314163501_Unique project name")]
+    partial class Uniqueprojectname
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
