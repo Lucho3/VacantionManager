@@ -59,7 +59,7 @@ namespace VacantionManager.Controllers.Teams
                     return NotFound();
                 }
 
-                var teamModel = await _context.Teams.Include(t => t.devs).Include(t => t.project).Include(t => t.teamLeader)
+                var teamModel = await _context.Teams.Include(t => t.devs).ThenInclude(l => l.role).Include(t => t.project).Include(t => t.teamLeader)
                     .FirstOrDefaultAsync(m => m.id == id);
 
                 if (teamModel == null)
@@ -71,23 +71,10 @@ namespace VacantionManager.Controllers.Teams
                 {
                     teamModel.devs.Remove(teamModel.teamLeader);
                 }
-                List<UserModel> users = await _context.Users.Include(u => u.team).Where(u => u.team == null).Include(u=>u.role).ToListAsync();
+                
 
-                TeamDetailsViewModel tdvm = new TeamDetailsViewModel(teamModel, users);
-               
 
-                if (user.role.name == "CEO")
-                {
-                    return View(tdvm);
-                }
-                else if (user.role.name == "Team Lead" && user.leadedTeam==teamModel)
-                {
-                    return View("DetailsTeamLead", tdvm);
-                }
-                else
-                {
-                    return View("DetailsNormalUser", teamModel);
-                }
+                return await TeamDetailsView(teamModel);
                 
             }
 
@@ -120,7 +107,7 @@ namespace VacantionManager.Controllers.Teams
                 await _context.SaveChangesAsync();
 
                 //TODO: Refaactor
-                return await ReturnTeamDetailsView(teamModel);
+                return await TeamDetailsView(teamModel);
             }
             else
             {
@@ -137,7 +124,7 @@ namespace VacantionManager.Controllers.Teams
                     return NotFound();
                 }
 
-                UserModel u = await _context.Users.Where(u => u.id == userId).Include(u => u.team).Include(u=>u.role).FirstOrDefaultAsync();
+                UserModel u = await _context.Users.Include(u => u.team).Include(u=>u.role).FirstOrDefaultAsync(u => u.id == userId);
                 var teamModel = await _context.Teams.Include(t => t.devs).Include(t => t.project).Include(t => t.teamLeader)
                     .FirstOrDefaultAsync(m => m.id == teamId);
 
@@ -149,14 +136,29 @@ namespace VacantionManager.Controllers.Teams
                 if (teamModel.teamLeader != null && u.role.name == "Team Lead")
                 {
                     ViewData["Message"] = "This user can't be add. The team already has team leader!";
-                    return await ReturnTeamDetailsView(teamModel);
+                    return await TeamDetailsView(teamModel);
                 }
+                //TODO:: REFACTOR
                 else
                 {
-                    teamModel.devs.Add(u);
-                    u.team = teamModel;
+                    if (u.role.name == "Team Lead")
+                    {
+                        u.leadedTeam = teamModel;
+                        u.team = teamModel;
+                        teamModel.devs.Add(u);
+                        u.team = teamModel;
+                    }
+                    else
+                    {
+                        teamModel.devs.Add(u);
+                        u.team = teamModel;
+                    }
                     await _context.SaveChangesAsync();
-                    return await ReturnTeamDetailsView(teamModel);
+                    if (teamModel.teamLeader != null)
+                    {
+                        teamModel.devs.Remove(teamModel.teamLeader);
+                    }
+                    return await TeamDetailsView(teamModel);
                 }
                 
             }
@@ -428,19 +430,34 @@ namespace VacantionManager.Controllers.Teams
         // GET: TeamModels/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
+            if (await extractUser())
             {
-                return NotFound();
-            }
+                if (user.role.name == "CEO")
+                {
+                    if (id == null)
+                    {
+                        return NotFound();
+                    }
 
-            var teamModel = await _context.Teams
-                .FirstOrDefaultAsync(m => m.id == id);
-            if (teamModel == null)
+                    var teamModel = await _context.Teams
+                        .FirstOrDefaultAsync(m => m.id == id);
+                    if (teamModel == null)
+                    {
+                        return NotFound();
+                    }
+
+                    return View(teamModel);
+
+                }
+                else
+                {
+                    return View("NoPermission");
+                }
+            }
+            else
             {
-                return NotFound();
+                return RedirectToAction("Index", "LogIn");
             }
-
-            return View(teamModel);
         }
 
         // POST: TeamModels/Delete/5
@@ -448,10 +465,24 @@ namespace VacantionManager.Controllers.Teams
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var teamModel = await _context.Teams.FindAsync(id);
-            _context.Teams.Remove(teamModel);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            if (await extractUser())
+            {
+                if (user.role.name == "CEO")
+                {
+                    var teamModel = await _context.Teams.FindAsync(id);
+                    _context.Teams.Remove(teamModel);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    return View("NoPermission");
+                }
+            }
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
         }
 
         private bool TeamModelExists(int id)
@@ -468,9 +499,10 @@ namespace VacantionManager.Controllers.Teams
         //TODO
         public async Task<IActionResult> Search(string search)
         {
-            List<TeamModel> teams = await _context.Teams.Include(t=>t.project).Include(t => t.devs).Include(t => t.teamLeader).ToListAsync();
+            
             if (await extractUser())
             {
+                List<TeamModel> teams = await _context.Teams.Include(t => t.project).Include(t => t.devs).Include(t => t.teamLeader).ToListAsync();
                 if (search != null)
                 {
                     string searchBy = Request.Form["SearchBy"];
@@ -500,6 +532,8 @@ namespace VacantionManager.Controllers.Teams
                 return RedirectToAction("Index", "LogIn");
             }
         }
+
+
 
         [NonAction]
         private ViewResult viewByTypeUser(object model)
@@ -531,7 +565,7 @@ namespace VacantionManager.Controllers.Teams
         }
 
         [NonAction]
-        private async Task<ViewResult> ReturnTeamDetailsView(TeamModel teamModel)
+        private async Task<ViewResult> TeamDetailsView(TeamModel teamModel)
         {
             if (user.role.name == "CEO")
             {

@@ -8,6 +8,7 @@ namespace VacantionManager.Models.ViewModels
 {
     public class TeamDetailsViewModel
     {
+        //todo
         public TeamDetailsViewModel(object team,IEnumerable<UserModel> users)
         {
             this.users = users;

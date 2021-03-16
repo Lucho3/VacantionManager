@@ -129,27 +129,33 @@ function openUsers(evt, tabName) {
                         <th>
                             Last name:
                         </th>
+                        <th>
+                            Role:
+                        </th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model.team.devs)
                     {
-                        <tr>
-                            <td>
-                                @item.username
-                            </td>
-                            <td>
-                                @item.firstName
-                            </td>
-                            <td>
-                                @item.lastName
-                            </td>
-                            <td>
-                                <a asp-action="Details"  asp-route-id="@item.id" asp-controller="Users">Details</a> |
-                                <a asp-action="RemoveFromTeam" asp-route-teamId="@Model.team.id" asp-controller="Teams" asp-route-userId="@item.id">Remove from team</a>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td>
+                            @item.username
+                        </td>
+                        <td>
+                            @item.firstName
+                        </td>
+                        <td>
+                            @item.lastName
+                        </td>
+                        <td>
+                            @item.role.name
+                        </td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.id" asp-controller="Users">Details</a> |
+                            <a asp-action="RemoveFromTeam" asp-route-teamId="@Model.team.id" asp-controller="Teams" asp-route-userId="@item.id">Remove from team</a>
+                        </td>
+                    </tr>
 
                     }
                 </tbody>

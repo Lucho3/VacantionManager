@@ -1,0 +1,83 @@
+﻿@model VacantionManager.Models.Entity.ProjectModel;
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_LayoutLogged.cshtml";
+}
+
+<h1>Details</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Project name:
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.name)
+        </dd>
+        <dt class="col-sm-2">
+            Project description:
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.description)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<p>@ViewData["Message"]</p>
+<div>
+    @if (Model.workingTeams.Count() > 0)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        Team name:
+                    </th>
+                    <th>
+                        Team Leader:
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.workingTeams)
+                {
+                <tr>
+                    <td>
+                        @item.name
+                    </td>
+                    @if (item.teamLeader != null)
+                    {
+                        <td>
+                            @(item.teamLeader.firstName + " " + item.teamLeader.lastName)
+
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            No team leader!
+
+                        </td>
+                    }
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.id" asp-controller="Teams">Details</a>
+                    </td>
+                </tr>
+
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No users in this team!</p>
+    }
+</div>
+
+

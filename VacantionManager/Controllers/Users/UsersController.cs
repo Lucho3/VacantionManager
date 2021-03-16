@@ -438,7 +438,7 @@ namespace VacantionManager.Controllers.Users
             {
                 if (user.role.name == "CEO")
                 {
-                    UserModel u = await _context.Users.Include(u => u.role).Include(u => u.team).FirstOrDefaultAsync(u => u.id == id);
+                    UserModel u = await _context.Users.Include(u => u.role).Include(u => u.team).ThenInclude(t=>t.teamLeader).FirstOrDefaultAsync(u => u.id == id);
                     string team = Request.Form["Teams"];
                     if (!String.IsNullOrEmpty(team))
                     {
@@ -468,7 +468,18 @@ namespace VacantionManager.Controllers.Users
                     }
                     else
                     {
-                        u.team = null;
+                        if (u.role.name != "Team Lead")
+                        {
+                            u.team = null;
+
+                        }
+                        else
+                        {
+                            u.team.teamLeader = null;
+                            u.team = null;
+                            u.leadedTeam = null;
+                        }
+
                         await _context.SaveChangesAsync();
                         return await userViewEdited(u);
                     }
@@ -486,9 +497,10 @@ namespace VacantionManager.Controllers.Users
 
         public async Task<IActionResult> Search(string search)
         {
-            List<UserModel> users = await _context.Users.Include(u => u.role).Include(u => u.team).ToListAsync();
+            
             if (await extractUser())
             {
+                List<UserModel> users = await _context.Users.Include(u => u.role).Include(u => u.team).ToListAsync();
                 if (search != null)
                 {
                     string searchBy = Request.Form["SearchBy"];

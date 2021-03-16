@@ -1,0 +1,56 @@
+﻿@model IEnumerable<VacantionManager.Models.Entity.ProjectModel>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutLogged.cshtml";
+}
+
+<h1>Projects</h1>
+
+<form style="margin-bottom:10px;" asp-action="Search" asp-controller="Projects">
+    <p style="display:inline;">Search by:</p>
+    <select name="SearchBy">
+        <option value=projectName>Project name</option>
+        <option value=projectDescription>Project description</option>
+    </select>
+    <input style="display:inline; margin-left:10px;" name="search" />
+    <input style="display:inline; margin-left:10px;" type="submit" value="Search" />
+</form>
+<p class="text-danger" style="margin-bottom:10px;">@ViewData["Message"]</p>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Name:
+            </th>
+            <th>
+                Description:
+            </th>
+            <th>
+                Number of teams working on the project:
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.description)
+            </td>
+            <td>
+                @item.workingTeams.Count()
+            </td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.id">Details</a>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
