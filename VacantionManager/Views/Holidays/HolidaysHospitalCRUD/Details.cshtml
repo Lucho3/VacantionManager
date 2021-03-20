@@ -1,0 +1,62 @@
+﻿@model VacantionManager.Models.Entity.HospitalLeaveModel
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_LayoutLogged.cshtml";
+}
+
+<h1>Details</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Applicant:
+        </dt>
+        <dd class="col-sm-10">
+            @(Model.applicant.username + "(" + Model.applicant.firstName + " " + Model.applicant.lastName + ")")
+        </dd>
+        <dt class="col-sm-2">
+            Start date:
+        </dt>
+        <dd class="col-sm-10">
+            @(string.Format("{0}.{1}.{2}",Model.startDate.Day,Model.startDate.Month,Model.startDate.Year))
+        </dd>
+        <dt class="col-sm-2">
+            End date:
+        </dt>
+        <dd class="col-sm-10">
+            @(string.Format("{0}.{1}.{2}",Model.endDate.Day,Model.endDate.Month,Model.endDate.Year))
+        </dd>
+        <dt class="col-sm-2">
+            Date of the request:
+        </dt>
+        <dd class="col-sm-10">
+            @(string.Format("{0}.{1}.{2}",Model.appicationDate.Day,Model.appicationDate.Month,Model.appicationDate.Year))
+        </dd>    
+        <dt class="col-sm-2">
+            Approved:
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.approved)
+            {
+                <label>Yes</label>
+            }
+            else
+            {
+                <label>No</label>
+            }
+        </dd>
+    </dl>
+</div>
+<div>
+    @if (Model.approved == false)
+    {
+         <a asp-action="Edit" asp-route-id="@Model.id" asp-controller="HolidaysHospital">Edit</a><label>&nbsp |</label>
+    }
+    <a asp-action="DownloadAmbulatoryCard" asp-route-id="@Model.id" asp-controller="HolidaysHospital">Download ambulatory card</a>
+</div>
+<p>@ViewData["Message"]</p>
+<div>
+    <a asp-action="IndexDisapproved" asp-controller="HolidaysHospital">Back to List</a>
+</div>

@@ -1,0 +1,94 @@
+﻿@model IEnumerable<VacantionManager.Models.Entity.HospitalLeaveModel>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutLogged.cshtml";
+}
+
+<h1>Holidays hospital</h1>
+
+<p>
+    <a asp-action="Create" asp-controller="HolidaysHospital">Create New</a>
+</p>
+
+@if (Model.Count() > 0)
+{
+    <div>
+        <form style="margin-bottom:10px;" asp-action="Search" asp-controller="HolidaysHospital">
+            <p style="display:inline;">Requests after date:</p>
+            <input type="date">
+            <input style="display:inline; margin-left:10px;" type="submit" value="Search" />
+        </form>
+    </div>
+
+    <div>
+        <form style="margin-bottom:10px;" asp-action="Filter" asp-controller="HolidaysHospital">
+            <p style="display:inline;">Filter by:</p>
+            <select name="FilterBy">
+                <option value=paid>Paid</option>
+                <option value=unpaid>Unpaid</option>
+            </select>
+            <input style="display:inline; margin-left:10px;" type="submit" value="Filter" />
+        </form>
+    </div>
+}
+
+<a asp-action="IndexMyApproved" asp-controller="HolidaysHospital">My aproved requests</a>
+<a asp-action="IndexMyDisapproved" asp-controller="HolidaysHospital">My disaproved requests</a>
+
+<p>@ViewData["Requests"]</p>
+@if (Model.Count() > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+
+                <th>
+                    Start date:
+                </th>
+                <th>
+                    End date:
+                </th>
+                <th>
+                    Date of request:
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @(string.Format("{0}.{1}.{2}",item.startDate.Day,item.startDate.Month,item.startDate.Year))
+                    </td>
+                    <td>
+                        @(string.Format("{0}.{1}.{2}",item.endDate.Day,item.endDate.Month,item.endDate.Year))
+                    </td>
+                    <td>
+                        @(string.Format("{0}.{1}.{2}",item.appicationDate.Day,item.appicationDate.Month,item.appicationDate.Year))
+                    </td>                    
+                    @if (item.approved == false)
+                    {
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.id">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.id" asp-controller="HolidaysHospital">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.id">Delete</a>
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.id" asp-controller="HolidaysHospital">Details</a>
+                        </td>
+                    }
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No requests!</p>
+}

@@ -1,0 +1,69 @@
+﻿@model VacantionManager.Models.Entity.HospitalLeaveModel
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_LayoutLogged.cshtml";
+}
+
+<h1>Edit</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" asp-controller="HolidaysHospital" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="id" />
+            <div class="form-group">
+                <label asp-for="startDate" class="control-label"></label>
+                <input name="startdate" id="inputDate" type="date" asp-for="startDate" class="form-control" />
+                <span asp-validation-for="startDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="endDate" class="control-label"></label>
+                <input name="enddate" id="inputDate" type="date" asp-for="endDate" class="form-control" />
+                <span asp-validation-for="endDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Ambulatory card:</label>
+                <input  accept="image/png, image/jpeg" name="abCard" type="file" asp-for="ambulatoryCard" />
+                <span asp-validation-for="ambulatoryCard" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="IndexDisapproved" asp-controller="HolidaysHospital">Back to List</a>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script>
+        function mindate(input) {
+        var today = new Date();
+        var dd = today.getDate() + 1;
+        var mm = today.getMonth() + 1; //January is 0!
+        var yyyy = today.getFullYear();
+        if (dd < 10) {
+            dd = '0' + dd
+        }
+        if (mm < 10) {
+            mm = '0' + mm
+        }
+
+        startdate = yyyy + '-' + mm + '-' + dd;
+        document.getElementById(input).setAttribute("min", startdate);
+    }
+
+    window.onload = mindate("inputDate");
+
+
+    $("input[name='startdate']").change(function () {
+        $("input[name='enddate']").attr({
+            "min": ($(this).val())
+        });
+    })
+</script>
+

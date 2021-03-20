@@ -1,26 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VacantionManager.Models;
 using VacantionManager.Models.Entity;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace VacantionManager.Controllers.Holidays
 {
-    public class HolidaysPaidAndUnpaidController : Controller
+    public class HolidaysHospitalController : Controller
     {
         private readonly VacantionManagerDBContext _context;
 
-        private readonly ILogger<HolidaysPaidAndUnpaidController> _logger;
+        private readonly ILogger<HolidaysHospitalController> _logger;
 
         private UserModel user = null;
 
-        public HolidaysPaidAndUnpaidController(VacantionManagerDBContext context, ILogger<HolidaysPaidAndUnpaidController> logger)
+        public HolidaysHospitalController(VacantionManagerDBContext context, ILogger<HolidaysHospitalController> logger)
         {
             _context = context;
             _logger = logger;
@@ -33,7 +36,7 @@ namespace VacantionManager.Controllers.Holidays
             if (await extractUser())
             {
                 ViewData["Requests"] = "Requests for approval:";
-                List<LeaveModel> holidays = await _context.Leaves.Include(l => l.applicant).ThenInclude(u => u.role).Where(l => l.approved == false).ToListAsync();
+                List<HospitalLeaveModel> holidays = await _context.HospitalLeaves.Include(l => l.applicant).ThenInclude(u => u.role).Where(l => l.approved == false).ToListAsync();
                 return HolidayViewBasedOnUserRoleAsync(user.role.name, false, holidays);
             }
             else
@@ -46,7 +49,7 @@ namespace VacantionManager.Controllers.Holidays
             if (await extractUser())
             {
                 ViewData["Requests"] = "Approved requests:";
-                List<LeaveModel> holidays = await _context.Leaves.Include(l => l.applicant).ThenInclude(u => u.role).Where(l => l.approved == true).ToListAsync();
+                List<HospitalLeaveModel> holidays = await _context.HospitalLeaves.Include(l => l.applicant).ThenInclude(u => u.role).Where(l => l.approved == true).ToListAsync();
                 return HolidayViewBasedOnUserRoleAsync(user.role.name, false, holidays);
             }
             else
@@ -60,7 +63,7 @@ namespace VacantionManager.Controllers.Holidays
             if (await extractUser())
             {
                 ViewData["Requests"] = "My approved requests:";
-                List<LeaveModel> holidays = await _context.Leaves.Include(l => l.applicant).ThenInclude(u => u.role).Where(l => l.approved == true && l.applicant == user).ToListAsync();
+                List<HospitalLeaveModel> holidays = await _context.HospitalLeaves.Include(l => l.applicant).ThenInclude(u => u.role).Where(l => l.approved == true && l.applicant == user).ToListAsync();
                 return HolidayViewBasedOnUserRoleAsync(user.role.name, true, holidays);
             }
             else
@@ -74,7 +77,7 @@ namespace VacantionManager.Controllers.Holidays
             if (await extractUser())
             {
                 ViewData["Requests"] = "My disapproved requests:";
-                List<LeaveModel> holidays = await _context.Leaves.Include(l => l.applicant).ThenInclude(u => u.role).Where(l => l.approved == false && l.applicant == user).ToListAsync();
+                List<HospitalLeaveModel> holidays = await _context.HospitalLeaves.Include(l => l.applicant).ThenInclude(u => u.role).Where(l => l.approved == false && l.applicant == user).ToListAsync();
                 return HolidayViewBasedOnUserRoleAsync(user.role.name, true, holidays);
             }
             else
@@ -83,41 +86,13 @@ namespace VacantionManager.Controllers.Holidays
             }
         }
 
-        public async Task<IActionResult> Filter()
-        {
-            if (await extractUser())
-            {
-                bool isPaidForm = false;
-                if (Request.Form["FilterBy"] == "paid")
-                {
-                    isPaidForm = true;
-                }
-
-                ViewData["Requests"] = "Filtered by: " + Request.Form["FilterBy"] + "requests";
-                List<LeaveModel> holidays = await _context.Leaves.Include(l => l.applicant).ThenInclude(u => u.role).Where(l => l.isPaid == isPaidForm).ToListAsync();
-
-                if (user.role.name == "CEO" || user.role.name == "Team Lead")
-                {
-                    return HolidayViewBasedOnUserRoleAsync(user.role.name, false, holidays);
-                }
-                else
-                {
-                    return HolidayViewBasedOnUserRoleAsync(user.role.name, true, holidays);
-                }
-
-            }
-            else
-            {
-                return RedirectToAction("Index", "LogIn");
-            }
-        }
-
+       
         public async Task<IActionResult> Search(DateTime applicationDate)
         {
             if (await extractUser())
             {
                 ViewData["Requests"] = string.Format("Requests after {0}.{1}.{2}", applicationDate.Day, applicationDate.Month, applicationDate.Year);
-                List<LeaveModel> holidays = await _context.Leaves.Include(l => l.applicant).ThenInclude(u => u.role).Where(l => DateTime.Compare(l.appicationDate, applicationDate) >= 0).ToListAsync();
+                List<HospitalLeaveModel> holidays = await _context.HospitalLeaves.Include(l => l.applicant).ThenInclude(u => u.role).Where(l => DateTime.Compare(l.appicationDate, applicationDate) >= 0).ToListAsync();
 
                 if (user.role.name == "CEO" || user.role.name == "Team Lead")
                 {
@@ -140,11 +115,11 @@ namespace VacantionManager.Controllers.Holidays
         {
             if (await extractUser())
             {
-                LeaveModel application = await _context.Leaves.FindAsync(id);
+                HospitalLeaveModel application = await _context.HospitalLeaves.FindAsync(id);
                 user = await _context.Users.Include(u => u.leadedTeam).ThenInclude(u => u.devs).FirstOrDefaultAsync(u => u.id == user.id);
                 if (user.role.name == "CEO" ||
                     (user.role.name == "Team Lead" &&
-                    user.leadedTeam.devs.Any(d => d.leaves.Contains(application))))
+                    user.leadedTeam.devs.Any(d => d.hospitalLeaves.Contains(application))))
                 {
                     application.approved = true;
                     await _context.SaveChangesAsync();
@@ -166,34 +141,34 @@ namespace VacantionManager.Controllers.Holidays
 
 
         [NonAction]
-        private ViewResult HolidayViewBasedOnUserRoleAsync(string userRole, bool myRequests, List<LeaveModel> holidays)
+        private ViewResult HolidayViewBasedOnUserRoleAsync(string userRole, bool myRequests, List<HospitalLeaveModel> holidays)
         {
             if (userRole == "CEO" && myRequests == false)
             {
                 ViewData["Approvable"] = "OK";
-                return View("~/Views/Holidays/HolidaysPaidUnpaidCRUD/IndexCEOAndTEAMLead.cshtml", holidays.Where(l => l.applicant != user));
+                return View("~/Views/Holidays/HolidaysHospitalCRUD/IndexCEOAndTEAMLead.cshtml", holidays.Where(l => l.applicant != user));
             }
             else if (user.role.name == "Team Lead" && myRequests == false)
             {
                 ViewData["Approvable"] = "OK";
-                return View("~/Views/Holidays/HolidaysPaidUnpaidCRUD/IndexCEOAndTEAMLead.cshtml", holidays.Where(l => l.applicant.team == user.leadedTeam && l.applicant != user));
+                return View("~/Views/Holidays/HolidaysHospitalCRUD/IndexCEOAndTEAMLead.cshtml", holidays.Where(l => l.applicant.team == user.leadedTeam && l.applicant != user));
             }
             else
             {
                 if ((user.role.name == "Team Lead") && myRequests == true)
                 {
                     ViewData["Approvable"] = "NO";
-                    return View("~/Views/Holidays/HolidaysPaidUnpaidCRUD/IndexCEOAndTEAMLead.cshtml", holidays);
+                    return View("~/Views/Holidays/HolidaysHospitalCRUD/IndexCEOAndTEAMLead.cshtml", holidays);
                 }
                 else if (userRole == "CEO")
                 {
                     ViewData["Approvable"] = "OK";
-                    return View("~/Views/Holidays/HolidaysPaidUnpaidCRUD/IndexCEOAndTEAMLead.cshtml", holidays);
+                    return View("~/Views/Holidays/HolidaysHospitalCRUD/IndexCEOAndTEAMLead.cshtml", holidays);
                 }
                 else
                 {
                     ViewData["Approvable"] = "NO";
-                    return View("~/Views/Holidays/HolidaysPaidUnpaidCRUD/IndexNormalUser.cshtml", holidays.Where(u => u.applicant == user));
+                    return View("~/Views/Holidays/HolidaysHospitalCRUD/IndexNormalUser.cshtml", holidays.Where(u => u.applicant == user));
                 }
             }
         }
@@ -206,12 +181,12 @@ namespace VacantionManager.Controllers.Holidays
 
         //Create
 
-        // GET: LeaveModels/Create
+        // GET: HospitalLeaveModels/Create
         public async Task<IActionResult> Create()
         {
             if (await extractUser())
             {
-                return View("~/Views/Holidays/HolidaysPaidUnpaidCRUD/Create.cshtml");
+                return View("~/Views/Holidays/HolidaysHospitalCRUD/Create.cshtml");
             }
             else
             {
@@ -219,24 +194,31 @@ namespace VacantionManager.Controllers.Holidays
             }
         }
 
-        // POST: LeaveModels/Create
+        // POST: HospitalLeaveModels/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("id,isPaid,startDate,endDate,appicationDate,halfDay,approved")] LeaveModel leaveModel)
+        public async Task<IActionResult> Create([Bind("id,startDate,endDate,appicationDate,approved")] HospitalLeaveModel HospitalLeaveModel, IFormFile abCard) 
         {
             if (await extractUser())
             {
                 ModelState.Remove("applicant");
-                if (ModelState.IsValid && leaveModel.startDate >= DateTime.Now && leaveModel.startDate <= leaveModel.endDate)
+                ModelState.Remove("ambulatoryCard");
+                if (ModelState.IsValid && HospitalLeaveModel.startDate >= DateTime.Now && HospitalLeaveModel.startDate <= HospitalLeaveModel.endDate && abCard!=null)
                 {
-                    leaveModel.applicant = user;
-                    _context.Add(leaveModel);
+                    using (var ms = new MemoryStream())
+                    {
+                        abCard.CopyTo(ms);
+                        HospitalLeaveModel.ambulatoryCard = ms.ToArray();
+                    }
+
+                    HospitalLeaveModel.applicant = user;
+                    _context.Add(HospitalLeaveModel);
                     await _context.SaveChangesAsync();
                     return RedirectToAction("IndexDisapproved");
                 }
-                return View("~/Views/Holidays/HolidaysPaidUnpaidCRUD/Create.cshtml", leaveModel);
+                return View("~/Views/Holidays/HolidaysHospitalCRUD/Create.cshtml", HospitalLeaveModel);
             }
             else
             {
@@ -247,7 +229,7 @@ namespace VacantionManager.Controllers.Holidays
         //Create end
 
         //Details
-        // GET: LeaveModels/Details/5
+        // GET: HospitalLeaveModels/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (await extractUser())
@@ -257,14 +239,14 @@ namespace VacantionManager.Controllers.Holidays
                     return NotFound();
                 }
 
-                var leaveModel = await _context.Leaves.Include(l => l.applicant)
+                var HospitalLeaveModel = await _context.HospitalLeaves.Include(l => l.applicant)
                     .FirstOrDefaultAsync(m => m.id == id);
-                if (leaveModel == null)
+                if (HospitalLeaveModel == null)
                 {
                     return NotFound();
                 }
 
-                return View("~/Views/Holidays/HolidaysPaidUnpaidCRUD/Details.cshtml", leaveModel);
+                return View("~/Views/Holidays/HolidaysHospitalCRUD/Details.cshtml", HospitalLeaveModel);
             }
             else
             {
@@ -274,7 +256,7 @@ namespace VacantionManager.Controllers.Holidays
         //Details end
 
 
-        // GET: LeaveModels/Edit/5
+        // GET: HospitalLeaveModels/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (await extractUser())
@@ -284,16 +266,16 @@ namespace VacantionManager.Controllers.Holidays
                     return NotFound();
                 }
 
-                var leaveModel = await _context.Leaves.FindAsync(id);
+                var HospitalLeaveModel = await _context.HospitalLeaves.FindAsync(id);
 
-                if (leaveModel == null)
+                if (HospitalLeaveModel == null)
                 {
                     return NotFound();
                 }
 
-                if (leaveModel.approved == false)
+                if (HospitalLeaveModel.approved == false)
                 {
-                    return View("~/Views/Holidays/HolidaysPaidUnpaidCRUD/Edit.cshtml", leaveModel);
+                    return View("~/Views/Holidays/HolidaysHospitalCRUD/Edit.cshtml", HospitalLeaveModel);
                 }
                 else
                 {
@@ -306,37 +288,78 @@ namespace VacantionManager.Controllers.Holidays
             }
         }
 
-        // POST: LeaveModels/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("id,isPaid,startDate,endDate,appicationDate,halfDay")] LeaveModel leaveModel)
+
+        public async Task<IActionResult> DownloadAmbulatoryCard(int? id)
         {
             if (await extractUser())
             {
-                if (id != leaveModel.id)
+                if (id == null)
                 {
                     return NotFound();
                 }
 
+                var HospitalLeaveModel = await _context.HospitalLeaves.FindAsync(id);
+
+                if (HospitalLeaveModel == null)
+                {
+                    return NotFound();
+                }
+
+                if (HospitalLeaveModel.ambulatoryCard == null)
+                {
+                    ViewData["Message"] = "No ambulatory card!";
+                }
+                else
+                {                   
+                    var fileToRetrieve = HospitalLeaveModel.ambulatoryCard;
+                    return File(fileToRetrieve, "image/png/jpeg");
+                }
+                return View("~/Views/Holidays/HolidaysHospitalCRUD/Edit.cshtml", HospitalLeaveModel);
+            }
+            else
+            {
+                return RedirectToAction("Index", "LogIn");
+            }
+        }
+            // POST: HospitalLeaveModels/Edit/5
+            // To protect from overposting attacks, enable the specific properties you want to bind to.
+            // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+            [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("id,isPaid,startDate,endDate,appicationDate,halfDay")] HospitalLeaveModel HospitalLeaveModel, IFormFile abCard)
+        {
+            if (await extractUser())
+            {
+                if (id != HospitalLeaveModel.id)
+                {
+                    return NotFound();
+                }
+
+                ModelState.Remove("ambulatoryCard");
                 ModelState.Remove("applicant");
                 if (ModelState.IsValid)
                 {
-                    if (leaveModel.approved == false)
+                    if (HospitalLeaveModel.approved == false)
                     {
                         try
                         {
-                            LeaveModel UpdatedModel = await _context.Leaves.FirstOrDefaultAsync(l => l.id == id);
-                            UpdatedModel.startDate = leaveModel.startDate;
-                            UpdatedModel.endDate = leaveModel.endDate;
-                            UpdatedModel.isPaid = leaveModel.isPaid;
-                            UpdatedModel.halfDay = leaveModel.halfDay;
+                            HospitalLeaveModel UpdatedModel = await _context.HospitalLeaves.FirstOrDefaultAsync(l => l.id == id);
+                            UpdatedModel.startDate = HospitalLeaveModel.startDate;
+                            UpdatedModel.endDate = HospitalLeaveModel.endDate;
+                            if (abCard!=null)
+                            {
+                                using (var ms = new MemoryStream())
+                                {
+                                    abCard.CopyTo(ms);
+                                    HospitalLeaveModel.ambulatoryCard = ms.ToArray();
+                                }
+                            }
+                           
                             await _context.SaveChangesAsync();
                         }
                         catch (DbUpdateConcurrencyException)
                         {
-                            if (!LeaveModelExists(leaveModel.id))
+                            if (!HospitalLeaveModelExists(HospitalLeaveModel.id))
                             {
                                 return NotFound();
                             }
@@ -353,7 +376,7 @@ namespace VacantionManager.Controllers.Holidays
                         return View("NoPermission");
                     }
                 }
-                return View("~/Views/Holidays/HolidaysPaidUnpaidCRUD/Edit.cshtml",leaveModel);
+                return View("~/Views/Holidays/HolidaysHospitalCRUD/Edit.cshtml", HospitalLeaveModel);
             }
             else
             {
@@ -361,7 +384,7 @@ namespace VacantionManager.Controllers.Holidays
             }
         }
 
-        // GET: LeaveModels/Delete/5
+        // GET: HospitalLeaveModels/Delete/5
         //TODO: Validation 
         public async Task<IActionResult> Delete(int? id)
         {
@@ -372,15 +395,15 @@ namespace VacantionManager.Controllers.Holidays
                     return NotFound();
                 }
 
-                var leaveModel = await _context.Leaves
+                var HospitalLeaveModel = await _context.HospitalLeaves
                     .FirstOrDefaultAsync(m => m.id == id);
 
-                if (leaveModel == null)
+                if (HospitalLeaveModel == null)
                 {
                     return NotFound();
                 }
 
-                return View("~/Views/Holidays/HolidaysPaidUnpaidCRUD/Delete.cshtml", leaveModel);
+                return View("~/Views/Holidays/HolidaysHospitalCRUD/Delete.cshtml", HospitalLeaveModel);
 
             }
             else
@@ -412,15 +435,15 @@ namespace VacantionManager.Controllers.Holidays
             }
         }
 
-        // POST: LeaveModels/Delete/5
+        // POST: HospitalLeaveModels/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (await extractUser())
             {
-                var leaveModel = await _context.Leaves.FindAsync(id);
-                _context.Leaves.Remove(leaveModel);
+                var HospitalLeaveModel = await _context.HospitalLeaves.FindAsync(id);
+                _context.HospitalLeaves.Remove(HospitalLeaveModel);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(IndexDisapproved));
             }
@@ -430,9 +453,9 @@ namespace VacantionManager.Controllers.Holidays
             }
         }
 
-        private bool LeaveModelExists(int id)
+        private bool HospitalLeaveModelExists(int id)
         {
-            return _context.Leaves.Any(e => e.id == id);
+            return _context.HospitalLeaves.Any(e => e.id == id);
         }
     }
 }
