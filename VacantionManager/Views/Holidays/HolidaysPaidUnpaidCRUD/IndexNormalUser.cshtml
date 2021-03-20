@@ -8,7 +8,7 @@
 <h1>Holidays Paid and Unpaid</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" asp-controller="HolidaysPaidAndUnpaid">Create New</a>
 </p>
 
 @if (Model.Count() > 0)
@@ -36,7 +36,7 @@
 <a asp-action="IndexMyApproved" asp-controller="HolidaysPaidAndUnpaid">My aproved requests</a>
 <a asp-action="IndexMyDisapproved" asp-controller="HolidaysPaidAndUnpaid">My disaproved requests</a>
 
-<p>Holidays paid and unpaid</p>
+<p>@ViewData["Requests"]</p>
 @if (Model.Count() > 0)
 {
     <table class="table">
@@ -51,9 +51,6 @@
                 </th>
                 <th>
                     Date of request:
-                </th>
-                <th>
-                    Aplicant:
                 </th>
                 <th>
                     Type:
@@ -74,9 +71,6 @@
                     <td>
                         @(string.Format("{0}.{1}.{2}",item.appicationDate.Day,item.appicationDate.Month,item.appicationDate.Year))
                     </td>
-                    <td>
-                        @(item.applicant.username + "(" + item.applicant.firstName + " " + item.applicant.lastName + ")")
-                    </td>
                     @if (item.isPaid == true)
                     {
                         <td>
@@ -93,14 +87,14 @@
                     {
                         <td>
                             <a asp-action="Edit" asp-route-id="@item.id">Edit</a> |
-                            <a asp-action="Details" asp-route-id="@item.id">Details</a> |
+                            <a asp-action="Details" asp-route-id="@item.id" asp-controller="HolidaysPaidAndUnpaid">Details</a> |
                             <a asp-action="Delete" asp-route-id="@item.id">Delete</a>
                         </td>
                     }
                     else
                     {
                         <td>
-                            <a asp-action="Details" asp-route-id="@item.id">Details</a>
+                            <a asp-action="Details" asp-route-id="@item.id" asp-controller="HolidaysPaidAndUnpaid">Details</a>
                         </td>
                     }
 

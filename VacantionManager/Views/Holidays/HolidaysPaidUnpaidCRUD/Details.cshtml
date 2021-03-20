@@ -8,48 +8,78 @@
 <h1>Details</h1>
 
 <div>
-    <h4>LeaveModel</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.isPaid)
+        <dt class="col-sm-2">
+            Applicant:
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.isPaid)
+        <dd class="col-sm-10">
+            @(Model.applicant.username + "(" + Model.applicant.firstName + " " + Model.applicant.lastName + ")")
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.startDate)
+        <dt class="col-sm-2">
+            Start date:
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.startDate)
+        <dd class="col-sm-10">
+            @(string.Format("{0}.{1}.{2}",Model.startDate.Day,Model.startDate.Month,Model.startDate.Year))
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.endDate)
+        <dt class="col-sm-2">
+            End date:
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.endDate)
+        <dd class="col-sm-10">
+            @(string.Format("{0}.{1}.{2}",Model.endDate.Day,Model.endDate.Month,Model.endDate.Year))
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.appicationDate)
+        <dt class="col-sm-2">
+            Date of the request:
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.appicationDate)
+        <dd class="col-sm-10">
+            @(string.Format("{0}.{1}.{2}",Model.appicationDate.Day,Model.appicationDate.Month,Model.appicationDate.Year))
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.halfDay)
+        <dt class="col-sm-2">
+            Half day:
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.halfDay)
+        <dd class="col-sm-10">
+            @if (Model.halfDay)
+            {
+                <label>Yes</label>
+            }
+            else
+            {
+                <label>No</label>
+            }
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.approved)
+        <dt class="col-sm-2">
+            <label> Is it paid:</label>
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.approved)
+        <dd class="col-sm-10">
+            @if (Model.isPaid)
+            {
+                <label>Yes</label>
+            }
+            else
+            {
+                <label>No</label>
+            }
+        </dd>
+
+        <dt class="col-sm-2">
+            Approved:
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.approved)
+            {
+                <label>Yes</label>
+            }
+            else
+            {
+                <label>No</label>
+            }
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    @if (Model.approved == false)
+    {
+    <a asp-action="Edit" asp-route-id="@Model.id" asp-controller="HolidaysPaidAndUnpaid">Edit</a><label>&nbsp |</label>
+    }
+    <a asp-action="IndexDisapproved" asp-controller="HolidaysPaidAndUnpaid">Back to List</a>
 </div>

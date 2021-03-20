@@ -106,12 +106,13 @@ namespace VacantionManager.Controllers.Users
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("id,username,firstName,lastName,password,confirmPassword")] UserModel userModel)
+        public async Task<IActionResult> Create([Bind("id,username,firstName,lastName,password")] UserModel userModel)
         {
             if (await extractUser())
             {
                 if (user.role.name == "CEO")
                 {
+                    ModelState.Remove("confirmPassword");
                     if (ModelState.IsValid)
                     {
                         userModel.role = await _context.Roles.Where(r => r.name == "Unassigned").FirstOrDefaultAsync();

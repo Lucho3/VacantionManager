@@ -8,7 +8,7 @@
 <h1>Holidays paid and unpaid</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" asp-controller="HolidaysPaidAndUnpaid">Create New</a>
 </p>
 
 @if (Model.Count() > 0)
@@ -94,7 +94,7 @@
                     }
                     @if (item.approved == false)
                     {
-                <td>
+                    <td>
                     @if ((ViewData["Approvable"]).ToString() == "OK")
                     {
                         <a asp-action="Approve" asp-route-id="@item.id">Approve</a><label>&nbsp |</label>
@@ -103,14 +103,17 @@
                     <a asp-action="Edit" asp-route-id="@item.id">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.id">Details</a> 
 
-                </td>
+                     </td>
                     }
                     else
                     {
-                        <td>
-                            <a asp-action="Delete" asp-route-id="@item.id">Delete</a><label> |</label>
-                            <a asp-action="Details" asp-route-id="@item.id">Details</a>
-                        </td>
+                <td>
+                    @if ((ViewData["Approvable"]).ToString() == "OK")
+                    {
+                        <a asp-action="Delete" asp-route-id="@item.id">Delete</a><label>&nbsp |</label>
+                    }
+                        <a asp-action="Details" asp-route-id="@item.id" asp-controller="HolidaysPaidAndUnpaid">Details</a>
+                    </td>
                     }
 
                 </tr>

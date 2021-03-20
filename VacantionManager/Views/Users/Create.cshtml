@@ -13,14 +13,6 @@
             x.type = "password";
         }
     }
-
-    function getValue(input) {
-        var x1 = document.getElementById(input.shift());
-        var x2 = document.getElementById(input.shift());
-
-        x2.value = x1.value;
-    }
-
 </script>
 
 <h1>Create</h1>
@@ -49,12 +41,11 @@
             <div class="form-group">
                 <label asp-for="password" class="control-label"></label>
                 <input id="PasswordTb" type="password" asp-for="password" class="form-control" />
-                <input id="confirmPasswordTb" type="hidden" asp-for="confirmPassword" class="form-control" />
                 <span asp-validation-for="password" class="text-danger"></span>
                 <div><input type="checkbox" onclick=showPass("PasswordTb")>Show Password</div>
             </div>
             <div class="form-group">
-                <input onclick=getValue(["PasswordTb","confirmPasswordTb"]) type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
     </div>
