@@ -252,7 +252,11 @@ namespace VacantionManager.Controllers.Roles
             {
                 if (user.role.name == "CEO")
                 {
-                     var roleModel = await _context.Roles.FindAsync(id);
+                     var roleModel = await _context.Roles.Include(r=>r.users).FirstOrDefaultAsync(r=>r.id==id);
+                    foreach (UserModel u in roleModel.users)
+                    {
+                        u.role = await _context.Roles.FindAsync(1);
+                    }
                      _context.Roles.Remove(roleModel);
                      await _context.SaveChangesAsync();
                      return RedirectToAction(nameof(Index));

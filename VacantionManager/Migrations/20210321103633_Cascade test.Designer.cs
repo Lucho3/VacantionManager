@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VacantionManager.Models;
 
 namespace VacantionManager.Migrations
 {
     [DbContext(typeof(VacantionManagerDBContext))]
-    partial class VacantionManagerDBContextModelSnapshot : ModelSnapshot
+    [Migration("20210321103633_Cascade test")]
+    partial class Cascadetest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -254,13 +256,11 @@ namespace VacantionManager.Migrations
                 {
                     b.HasOne("VacantionManager.Models.Entity.ProjectModel", "project")
                         .WithMany("workingTeams")
-                        .HasForeignKey("projectid")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("projectid");
 
                     b.HasOne("VacantionManager.Models.Entity.UserModel", "teamLeader")
                         .WithOne("leadedTeam")
-                        .HasForeignKey("VacantionManager.Models.Entity.TeamModel", "teamLeaderId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("VacantionManager.Models.Entity.TeamModel", "teamLeaderId");
 
                     b.Navigation("project");
 
@@ -277,8 +277,7 @@ namespace VacantionManager.Migrations
                     b.HasOne("VacantionManager.Models.Entity.TeamModel", "team")
                         .WithMany("devs")
                         .HasForeignKey("teamid")
-                        .HasConstraintName("ForeignKey_User_Team")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasConstraintName("ForeignKey_User_Team");
 
                     b.Navigation("role");
 

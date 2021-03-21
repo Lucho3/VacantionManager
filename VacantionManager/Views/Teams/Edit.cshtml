@@ -7,7 +7,6 @@
 
 <h1>Edit</h1>
 
-<h4>TeamModel</h4>
 <hr />
 <dd class="col-sm-10">
 <div style="margin-top:10px;">
@@ -20,28 +19,35 @@
 
 <div style="margin-top:10px;">
     <form asp-action="ChangeLeader" asp-route-teamId="@Model.team.id">
-        <label>Change team leader:</label>
+
         @if (Model.users.Count() > 0)
         {
-             <select style="display:inline;width:30%;" name="Leaders">
-                 @if (Model.team.teamLeader != null)
-                 {
-                     <option value=@Model.team.teamLeader.username>@(Model.team.teamLeader.username + "(" + Model.team.teamLeader.firstName + " " + Model.team.teamLeader.lastName + ")")</option>
-                     <option value=@null>---------------</option>
-                 }
-                 else
-                 { 
-                     <option value=@null>---------------</option>
-                 }
-                 @foreach (var item in Model.users)
-                 {
-                     <option value=@item.Key>@item.Value</option>
-                 }
-             </select>
+            <label>Change team leader:</label>
+            <select style="display:inline;width:30%;" name="Leaders">
+                @if (Model.team.teamLeader != null)
+                {
+                    <option selected value=@Model.team.teamLeader.username>@(Model.team.teamLeader.username + "(" + Model.team.teamLeader.firstName + " " + Model.team.teamLeader.lastName + ")")</option>
+
+                }
+                <option value=@null>---------------</option>
+                @foreach (var item in Model.users)
+                {
+                    <option value=@item.Key>@item.Value</option>
+                }
+            </select>
         }
         else
         {
-            <label>No free leaders!</label>
+            <label>Current leader is:</label>
+            <select style="display:inline;width:30%;" name="Leaders">
+                @if (Model.team.teamLeader != null)
+                {
+                    <option selected value=@Model.team.teamLeader.username>@(Model.team.teamLeader.username + "(" + Model.team.teamLeader.firstName + " " + Model.team.teamLeader.lastName + ")")</option>
+
+                }
+                <option value=@null>---------------</option>
+            </select>
+            <label>There are no free leaders!</label>
         }
         <input style="display:inline;" type="submit" value="Save" class="btn btn-primary" />
     </form>

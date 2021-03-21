@@ -52,9 +52,22 @@ namespace VacantionManager.Models
             modelBuilder.Entity<TeamModel>().HasIndex(u => u.teamLeaderId).IsUnique();
 
             modelBuilder.Entity<UserModel>()
-                .HasOne(u => u.leadedTeam).WithOne(t => t.teamLeader).HasForeignKey<TeamModel>(t => t.teamLeaderId);
+                .HasOne(u => u.leadedTeam).WithOne(t => t.teamLeader).HasForeignKey<TeamModel>(t => t.teamLeaderId).OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<TeamModel>().Property(t => t.teamLeaderId).IsRequired(false);
+
+            //Cascade
+
+            modelBuilder.Entity<RoleModel>().HasMany(r => r.users).WithOne(r => r.role).OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<ProjectModel>().HasMany(t=>t.workingTeams).WithOne(r => r.project).OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<TeamModel>().HasMany(t => t.devs).WithOne(u=>u.team).OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<LeaveModel>().HasOne(u => u.applicant).WithMany(l=>l.leaves).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<HospitalLeaveModel>().HasOne(u => u.applicant).WithMany(l => l.hospitalLeaves).OnDelete(DeleteBehavior.Cascade);
+
         }
         public virtual DbSet<UserModel> Users { get; set; }
 
