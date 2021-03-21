@@ -24,8 +24,8 @@
                 <span asp-validation-for="endDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label class="control-label">Ambulatory card:</label>
-                <input  accept="image/png, image/jpeg" name="abCard" type="file" asp-for="ambulatoryCard" />
+                <label class="control-label">Ambulatory card - must be in pdf format:</label>
+                <input  accept="application/pdf" name="abCard" type="file" asp-for="ambulatoryCard" />
                 <span asp-validation-for="ambulatoryCard" class="text-danger"></span>
             </div>
             <div class="form-group">

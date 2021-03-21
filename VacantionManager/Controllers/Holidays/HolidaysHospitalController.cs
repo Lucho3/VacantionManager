@@ -11,7 +11,6 @@ using System.Text;
 using System.Threading.Tasks;
 using VacantionManager.Models;
 using VacantionManager.Models.Entity;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace VacantionManager.Controllers.Holidays
 {
@@ -310,9 +309,10 @@ namespace VacantionManager.Controllers.Holidays
                     ViewData["Message"] = "No ambulatory card!";
                 }
                 else
-                {                   
+                {
+
                     var fileToRetrieve = HospitalLeaveModel.ambulatoryCard;
-                    return File(fileToRetrieve, "image/png/jpeg");
+                    return File(fileToRetrieve, "application/pdf", "Ambulatory_Card.pdf");
                 }
                 return View("~/Views/Holidays/HolidaysHospitalCRUD/Edit.cshtml", HospitalLeaveModel);
             }
@@ -343,18 +343,17 @@ namespace VacantionManager.Controllers.Holidays
                     {
                         try
                         {
-                            HospitalLeaveModel UpdatedModel = await _context.HospitalLeaves.FirstOrDefaultAsync(l => l.id == id);
+                            HospitalLeaveModel UpdatedModel = await _context.HospitalLeaves.FindAsync(id);
                             UpdatedModel.startDate = HospitalLeaveModel.startDate;
-                            UpdatedModel.endDate = HospitalLeaveModel.endDate;
+                            UpdatedModel.applicant = user;
                             if (abCard!=null)
                             {
                                 using (var ms = new MemoryStream())
                                 {
                                     abCard.CopyTo(ms);
-                                    HospitalLeaveModel.ambulatoryCard = ms.ToArray();
+                                    UpdatedModel.ambulatoryCard = ms.ToArray();
                                 }
                             }
-                           
                             await _context.SaveChangesAsync();
                         }
                         catch (DbUpdateConcurrencyException)

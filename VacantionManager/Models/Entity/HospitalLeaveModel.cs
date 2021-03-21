@@ -32,7 +32,7 @@ namespace VacantionManager.Models.Entity
         [Required]
         public bool approved { get; set; }
 
-        [Column(TypeName = "image")]
+       
         [Required]
         public byte[] ambulatoryCard { get; set; }
 
