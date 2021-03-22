@@ -20,7 +20,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="endDate" class="control-label"></label>
-                <input name="enddate" id="inputDate" type="date" asp-for="endDate" class="form-control" />
+                <input name="enddate" id="inputDateEnd" type="date" asp-for="endDate" class="form-control" />
                 <span asp-validation-for="endDate" class="text-danger"></span>
             </div>
             <div >
@@ -55,10 +55,17 @@
     }
 
     window.onload = mindate("inputDate");
+    window.onload = mindate("inputDateEnd");
 
     $("input[name='startdate']").change(function () {
         $("input[name='enddate']").attr({
             "min": ($(this).val())       
+        });
+    })
+
+    $("input[name='enddate']").change(function () {
+        $("input[name='startdate']").attr({
+            "max": ($(this).val())
         });
     })
 </script>
