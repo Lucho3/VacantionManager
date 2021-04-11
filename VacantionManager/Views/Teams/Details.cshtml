@@ -149,7 +149,10 @@ function openUsers(evt, tabName) {
                             @item.lastName
                         </td>
                         <td>
-                            @item.role.name
+                            @if (item.role.name!=null)
+                            {
+                                item.role.name
+                            }
                         </td>
                         <td>
                             <a asp-action="Details" asp-route-id="@item.id" asp-controller="Users">Details</a> |
